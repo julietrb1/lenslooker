@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LensLooker", "LensLooker\LensLooker.csproj", "{E8800AE7-FD4D-44DC-A0DA-4479F138E487}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LensLooker.Api.Flickr", "LensLooker.Api.Flickr\LensLooker.Api.Flickr.csproj", "{5B89E59A-3332-457F-A125-7B5B48BEE911}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LensLooker.Tests", "LensLooker.Tests\LensLooker.Tests.csproj", "{88A90F3B-AC69-4D86-8FEB-41FE43EDA1E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LensLooker.Api.Flickr.Tests", "LensLooker.Api.Flickr.Tests\LensLooker.Api.Flickr.Tests.csproj", "{A1003FCE-2B72-47E0-ACFE-3519B8FB154F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LensLooker.Data", "LensLooker.Data\LensLooker.Data.csproj", "{88A0A2D0-3A8D-4C4B-9511-575541D04E95}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LensLooker.Site", "LensLooker.Site\LensLooker.Site.csproj", "{28680AD9-A465-41A5-BA24-48ECCD03A0DA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E8800AE7-FD4D-44DC-A0DA-4479F138E487}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8800AE7-FD4D-44DC-A0DA-4479F138E487}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8800AE7-FD4D-44DC-A0DA-4479F138E487}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8800AE7-FD4D-44DC-A0DA-4479F138E487}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5B89E59A-3332-457F-A125-7B5B48BEE911}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B89E59A-3332-457F-A125-7B5B48BEE911}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B89E59A-3332-457F-A125-7B5B48BEE911}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B89E59A-3332-457F-A125-7B5B48BEE911}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88A90F3B-AC69-4D86-8FEB-41FE43EDA1E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88A90F3B-AC69-4D86-8FEB-41FE43EDA1E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88A90F3B-AC69-4D86-8FEB-41FE43EDA1E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88A90F3B-AC69-4D86-8FEB-41FE43EDA1E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1003FCE-2B72-47E0-ACFE-3519B8FB154F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1003FCE-2B72-47E0-ACFE-3519B8FB154F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1003FCE-2B72-47E0-ACFE-3519B8FB154F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1003FCE-2B72-47E0-ACFE-3519B8FB154F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88A0A2D0-3A8D-4C4B-9511-575541D04E95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88A0A2D0-3A8D-4C4B-9511-575541D04E95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88A0A2D0-3A8D-4C4B-9511-575541D04E95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88A0A2D0-3A8D-4C4B-9511-575541D04E95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28680AD9-A465-41A5-BA24-48ECCD03A0DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28680AD9-A465-41A5-BA24-48ECCD03A0DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28680AD9-A465-41A5-BA24-48ECCD03A0DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28680AD9-A465-41A5-BA24-48ECCD03A0DA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

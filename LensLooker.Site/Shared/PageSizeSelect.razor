@@ -1,0 +1,36 @@
+<label>
+    Page size
+    <select class="form-control form-control-sm" @bind="PageSize">
+        @foreach (var pageSize in ValidPageSizes)
+        {
+            <option selected="@(pageSize == PageSize)" value="@pageSize">@pageSize</option>
+        }
+    </select>
+</label>
+
+@code {
+
+    [Parameter]
+    [EditorRequired]
+    public EventCallback<int> OnPageSizeChange { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public int PageSize
+    {
+        get => _pageSize;
+        set
+        {
+            if (_pageSize == value) return;
+            _pageSize = value;
+            if (OnPageSizeChange.HasDelegate)
+                OnPageSizeChange.InvokeAsync(value);
+        }
+    }
+
+    [Parameter]
+    [EditorRequired]
+    public IList<int> ValidPageSizes { get; set; }
+
+    private int _pageSize;
+}

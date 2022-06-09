@@ -1,0 +1,31 @@
+@using LensLooker.Site.Data
+@if (Photos == null)
+{
+    <h2>Loading...</h2>
+}
+else
+{
+@foreach (var photo in Photos)
+{
+    <div>
+        <a href="@photo.ViewingUrl" target="_blank">
+            <img src="@photo.Src" alt="@photo.Title"/>
+        </a>
+        <div class="photo-info-container">
+            <div>
+                <strong>@(photo.Title ?? "(untitled photo)")</strong> | @photo.OwnerId
+            </div>
+            <div>@(photo.Camera ?? "(camera N/A)") | <span class="text-success">@(photo.Lens ?? "(lens N/A)")</span></div>
+            <div style="color: grey">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)") | @(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)") | @(photo.ShutterSpeed ?? "(shutter speed N/A)")</div>
+        </div>
+    </div>
+}
+}
+
+@code {
+
+    [Parameter]
+    [EditorRequired]
+    public IEnumerable<PhotoViewModel>? Photos { get; set; }
+
+}

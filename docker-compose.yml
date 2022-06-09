@@ -1,0 +1,45 @@
+services:
+  
+  investigator:
+    environment:
+      CUSTOMCONNSTR_LensLookerContext: "${CONNSTR}"
+      FlickrOptions__ApiKey: "${APIKEY}"
+      FlickrOptions__FetchOwners: true
+      FlickrOptions__TagsToFetch__0: Canon
+      FlickrOptions__PreferredLenses__0: RF50mm F1.2 L USM
+      FlickrOptions__PreferredLenses__1: RF85mm F1.2 L USM
+      FlickrOptions__PreferredLenses__2: RF100mm F2.8 L MACRO IS USM
+    image: registry.digitalocean.com/floating-barrels/lenslooker-investigator:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+  
+  site:
+    environment:
+      CUSTOMCONNSTR_LensLookerContext: "${CONNSTR}"
+    image: registry.digitalocean.com/floating-barrels/lenslooker-site:latest
+    ports:
+      - 8080:80/tcp
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: always
+        
+  db:
+    image: mcr.microsoft.com/azure-sql-edge
+    user: root
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    volumes:
+      - ./.db/data:/var/opt/mssql/data
+      - ./.db/log:/var/opt/mssql/log
+      - ./.db/secrets:/var/opt/mssql/secrets
+    environment:
+      SA_PASSWORD: "${DB_PASSWORD}"
+      ACCEPT_EULA: "Y"
+    restart: always
