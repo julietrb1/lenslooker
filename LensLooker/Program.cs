@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Polly;
 using Polly.Extensions.Http;
+using Sentry;
 
 static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
 {
@@ -24,33 +25,40 @@ static IAsyncPolicy<HttpResponseMessage> GetRateLimitPolicy()
         .RateLimitAsync<HttpResponseMessage>(3600, TimeSpan.FromHours(1), 10);
 }
 
-using var host = Host.CreateDefaultBuilder(args)
-    .ConfigureAppConfiguration((_, builder) =>
-    {
-        builder
-            .SetBasePath(Directory.GetCurrentDirectory())
-            .AddEnvironmentVariables();
-    })
-    .ConfigureServices((context, services) =>
-    {
-        services
-            .AddOptions()
-            .AddDbContext<LensLookerContext>(builder =>
-                builder.UseSqlServer(context.Configuration.GetConnectionString("LensLookerContext")))
-            .Configure<FlickrOptions>(context.Configuration.GetRequiredSection(nameof(FlickrOptions)))
-            .AddTransient<IInvestigator, Investigator>();
+IHost BuildHost()
+{
+    return Host.CreateDefaultBuilder(args)
+        .ConfigureAppConfiguration((_, builder) =>
+        {
+            builder
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddEnvironmentVariables();
+        })
+        .ConfigureServices((context, services) =>
+        {
+            services
+                .AddOptions()
+                .AddDbContext<LensLookerContext>(builder =>
+                    builder.UseSqlServer(context.Configuration.GetConnectionString("LensLookerContext")))
+                .Configure<FlickrOptions>(context.Configuration.GetRequiredSection(nameof(FlickrOptions)))
+                .AddTransient<IInvestigator, Investigator>();
 
-        services
-            .AddHttpClient<IPhotosClient, PhotosClient>()
-            .AddPolicyHandler(GetRetryPolicy())
-            .AddPolicyHandler(GetRateLimitPolicy());
+            services
+                .AddHttpClient<IPhotosClient, PhotosClient>()
+                .AddPolicyHandler(GetRetryPolicy())
+                .AddPolicyHandler(GetRateLimitPolicy());
 
-        services
-            .AddHttpClient<IPeopleClient, PeopleClient>()
-            .AddPolicyHandler(GetRetryPolicy())
-            .AddPolicyHandler(GetRateLimitPolicy());
-    })
-    .Build();
+            services
+                .AddHttpClient<IPeopleClient, PeopleClient>()
+                .AddPolicyHandler(GetRetryPolicy())
+                .AddPolicyHandler(GetRateLimitPolicy());
+        })
+        .Build();
+}
 
-Console.WriteLine("Starting Focal Investigator.");
-await host.Services.GetRequiredService<IInvestigator>().Investigate();
+using (SentrySdk.Init())
+{
+    var host = BuildHost();
+    Console.WriteLine("Starting Focal Investigator.");
+    await host.Services.GetRequiredService<IInvestigator>().Investigate();
+}

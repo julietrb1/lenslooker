@@ -9,22 +9,24 @@ services:
       FlickrOptions__PreferredLenses__0: RF50mm F1.2 L USM
       FlickrOptions__PreferredLenses__1: RF85mm F1.2 L USM
       FlickrOptions__PreferredLenses__2: RF100mm F2.8 L MACRO IS USM
+      SENTRY_DSN: "${SENTRY_DSN_INVESTIGATOR}"
     image: registry.digitalocean.com/floating-barrels/lenslooker-investigator:latest
     depends_on:
       db:
         condition: service_healthy
-    restart: always
+    restart: unless-stopped
   
   site:
     environment:
       CUSTOMCONNSTR_LensLookerContext: "${CONNSTR}"
+      SENTRY_DSN: "${SENTRY_DSN_SITE}"
     image: registry.digitalocean.com/floating-barrels/lenslooker-site:latest
     ports:
       - 8080:80/tcp
     depends_on:
       db:
         condition: service_healthy
-    restart: always
+    restart: unless-stopped
         
   db:
     image: mcr.microsoft.com/azure-sql-edge
@@ -42,4 +44,4 @@ services:
     environment:
       SA_PASSWORD: "${DB_PASSWORD}"
       ACCEPT_EULA: "Y"
-    restart: always
+    restart: unless-stopped

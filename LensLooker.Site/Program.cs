@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
@@ -11,6 +12,8 @@ builder.Services.AddDbContext<LensLookerContext>(b =>
     b.UseSqlServer(builder.Configuration.GetConnectionString("LensLookerContext")));
 
 var app = builder.Build();
+
+app.UseSentryTracing();
 
 var context = app.Services.GetRequiredService<LensLookerContext>();
 if (context.Database.GetPendingMigrations().Any()) context.Database.Migrate();
