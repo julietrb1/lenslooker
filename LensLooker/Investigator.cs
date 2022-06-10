@@ -265,8 +265,6 @@ public class Investigator : IInvestigator
                     photo.PhotoId, photo.Camera?.Name,
                     photo.Lens?.Name, photo.FocalLengthInMm, photo.FNumber, photo.Iso?.ToString("N0"),
                     photo.DateTimeShot);
-
-                await _dbContext.SaveChangesAsync();
             }
 
             // Saving again for good measure
