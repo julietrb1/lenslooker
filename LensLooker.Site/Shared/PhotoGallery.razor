@@ -5,21 +5,23 @@
 }
 else
 {
-@foreach (var photo in Photos)
-{
-    <div>
-        <a href="@photo.ViewingUrl" target="_blank">
-            <img src="@photo.Src" alt="@photo.Title"/>
-        </a>
-        <div class="photo-info-container">
-            <div>
-                <strong>@(photo.Title ?? "(untitled photo)")</strong> | @photo.OwnerId
+    <div class="row">
+        @foreach (var photo in Photos)
+        {
+            <div class="col-sm-12 col-md-6 col-lg-4 col-xl-3 col-xxl-2 p-2">
+                <a href="@photo.ViewingUrl" target="_blank">
+                    <img src="@photo.Src" alt="@photo.Title" class="photo"/>
+                </a>
+                <div class="m-3">
+                    <div>
+                        <strong>@(photo.Title ?? "(untitled photo)")</strong> | @photo.OwnerId
+                    </div>
+                    <div>@(photo.Camera ?? "(camera N/A)") | <span class="text-success">@(photo.Lens ?? "(lens N/A)")</span></div>
+                    <div style="color: grey">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)") | @(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)") | @(photo.ShutterSpeed ?? "(shutter speed N/A)")</div>
+                </div>
             </div>
-            <div>@(photo.Camera ?? "(camera N/A)") | <span class="text-success">@(photo.Lens ?? "(lens N/A)")</span></div>
-            <div style="color: grey">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)") | @(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)") | @(photo.ShutterSpeed ?? "(shutter speed N/A)")</div>
-        </div>
+        }
     </div>
-}
 }
 
 @code {

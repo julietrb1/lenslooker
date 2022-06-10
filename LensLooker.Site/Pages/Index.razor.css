@@ -1,12 +1,5 @@
-.photo-grid {
-    display: flex;
-    gap: 40px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.photo-info-container {
-    margin: 16px 0 16px;
+.photo {
+    max-width: 100%;
 }
 
 .page-input {
