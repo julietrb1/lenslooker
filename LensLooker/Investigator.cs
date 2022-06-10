@@ -68,24 +68,26 @@ public class Investigator : IInvestigator
             (await _dbContext.Photos.CountAsync()).ToString("N0"));
         var ownerIds = await _dbContext.Photos.Select(p => p.OwnerId).GroupBy(o => o).Select(g => g.Key)
             .ToListAsync();
-        foreach (var ownerId in ownerIds)
-        {
-            _logger.LogInformation("Fetching photos for owner {}", ownerId);
-            await RefreshPhotosFromFlickr(photosPage => _peopleClient.GetPublicPhotos(
-                new GetPublicPhotosRequest(ownerId)
-                    { Page = photosPage, PerPage = _options.PageSize }), true);
-            // It's safe to save here, since the foreach loop has been ToListed, meaning that a nested SQL query
-            // won't be made
-            await _dbContext.SaveChangesAsync();
-        }
+        foreach (var ownerId in ownerIds) await FetchOwner(ownerId);
 
         _logger.LogInformation("Database has {} photos after fetching owners",
             (await _dbContext.Photos.CountAsync()).ToString("N0"));
     }
 
+    private async Task FetchOwner(string ownerId)
+    {
+        _logger.LogInformation("Fetching photos for owner {}", ownerId);
+        await RefreshPhotosFromFlickr(photosPage => _peopleClient.GetPublicPhotos(
+            new GetPublicPhotosRequest(ownerId)
+                { Page = photosPage, PerPage = _options.PageSize }), true);
+        // It's safe to save here, since the foreach loop has been ToListed, meaning that a nested SQL query
+        // won't be made
+        await _dbContext.SaveChangesAsync();
+    }
+
     private async Task FetchPreferredLenses()
     {
-        foreach (var lensName in _options.PreferredLenses)
+        foreach (var lensName in _options.PreferredLenses!)
         {
             var lens = await _dbContext.Lenses.FindAsync(lensName);
             if (lens == null)
