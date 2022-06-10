@@ -153,18 +153,18 @@ public class Investigator : IInvestigator
     {
         _logger.LogInformation("Fetching missing EXIF data for all photos");
         var photosWithoutExif = await GetPhotosWithoutExif();
-        var ownerCountMap = new Dictionary<string, int>();
+        var ownerStrikeCountMap = new Dictionary<string, int>();
         do
         {
             foreach (var photo in photosWithoutExif)
             {
                 if (_options.OwnerDeleteThreshold.HasValue &&
-                    ownerCountMap.TryGetValue(photo.OwnerId, out var initialOwnerPhotoCount) &&
+                    ownerStrikeCountMap.TryGetValue(photo.OwnerId, out var initialOwnerPhotoCount) &&
                     initialOwnerPhotoCount >= _options.OwnerDeleteThreshold)
                 {
                     _logger.LogWarning(
-                        "Skipping photo '{PhotoId}' by '{OwnerId}' because of bad photo count {BadPhotoCount}",
-                        photo.PhotoId, photo.OwnerId, ownerCountMap[photo.OwnerId]);
+                        "Skipping photo '{PhotoId}' by '{OwnerId}' because of strike count {BadPhotoCount}",
+                        photo.PhotoId, photo.OwnerId, ownerStrikeCountMap[photo.OwnerId]);
                     photo.IsSkipped = true;
                     // No save here because doing so in succession within the loop would be inefficient.
                     continue;
@@ -184,8 +184,19 @@ public class Investigator : IInvestigator
                 }
                 catch (PermissionDeniedException)
                 {
-                    _logger.LogWarning("Permission denied for EXIF of '{PhotoId}'",
-                        photo.PhotoId);
+                    if (_options.OwnerDeleteThreshold.HasValue)
+                    {
+                        ownerStrikeCountMap.TryGetValue(photo.OwnerId, out var ownerPhotoCount);
+                        ownerStrikeCountMap[photo.OwnerId] = ownerPhotoCount + 1;
+                        _logger.LogWarning(
+                            "At {Strikes}/{TotalStrikes} for owner because of EXIF permission denied for photo '{PhotoId}'",
+                            ownerStrikeCountMap[photo.OwnerId], _options.OwnerDeleteThreshold, photo.PhotoId);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Permission denied for EXIF of '{PhotoId}'", photo.PhotoId);
+                    }
+
                     continue;
                 }
 
@@ -199,12 +210,13 @@ public class Investigator : IInvestigator
 
                 if (_options.OwnerDeleteThreshold.HasValue && photo.Lens == null)
                 {
-                    ownerCountMap.TryGetValue(photo.OwnerId, out var ownerPhotoCount);
-                    ownerCountMap[photo.OwnerId] = ownerPhotoCount + 1;
+                    ownerStrikeCountMap.TryGetValue(photo.OwnerId, out var ownerPhotoCount);
+                    ownerStrikeCountMap[photo.OwnerId] = ownerPhotoCount + 1;
                     _logger.LogWarning(
-                        "At {BadPhotoCount}/{TriggerPhotoCount} photos for owner '{OwnerId}' because of lens '{LensName}'",
-                        ownerCountMap[photo.OwnerId], _options.OwnerDeleteThreshold, photo.OwnerId, photo.Lens?.Name);
-                    if (ownerCountMap[photo.OwnerId] >= _options.OwnerDeleteThreshold)
+                        "At {BadPhotoCount}/{TriggerPhotoCount} strikes for owner '{OwnerId}' because of lens '{LensName}'",
+                        ownerStrikeCountMap[photo.OwnerId], _options.OwnerDeleteThreshold, photo.OwnerId,
+                        photo.Lens?.Name);
+                    if (ownerStrikeCountMap[photo.OwnerId] >= _options.OwnerDeleteThreshold)
                     {
                         _logger.LogWarning(
                             "Skipping photo '{PhotoId}' from '{OwnerId}' because of lens '{LensName}' at count {PhotoCount}",
