@@ -7,6 +7,8 @@
     <h1>@(LensName ?? "All lenses")</h1>
     <h2 class="text-muted h4 mb-4">Page @PageNumber.ToString("N0") of @PageCount.ToString("N0")</h2>
 
+    <p class="small">Press <code>j</code> for the previous page, and <code>l</code> for the next.</p>
+
     <div class="row mb-4">
         <div class="col-md-3">
             <LensSelect LensGroups="@LensGroups" OnLensChange="@OnLensChange"/>
