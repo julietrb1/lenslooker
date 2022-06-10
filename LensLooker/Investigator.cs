@@ -142,7 +142,7 @@ public class Investigator : IInvestigator
     private async Task SavePhotoExif()
     {
         _logger.LogInformation("Fetching missing EXIF data for all photos");
-        var photosWithoutExif = GetPhotosWithoutExif();
+        var photosWithoutExif = await GetPhotosWithoutExif();
         var ownerCountMap = new Dictionary<string, int>();
         do
         {
@@ -213,10 +213,9 @@ public class Investigator : IInvestigator
                 var fetchedCamera = fetchedPhoto.Photo.Camera;
                 var camera = string.IsNullOrWhiteSpace(fetchedCamera)
                     ? null
-                    : await _dbContext.Cameras.SingleOrDefaultAsync(c => c.Name == fetchedCamera) ??
+                    : await _dbContext.Cameras.FindAsync(fetchedCamera) ??
                       new Camera { Name = fetchedCamera };
                 photo.Camera = camera;
-
 
                 var focalLengthNode = fetchedPhoto.Photo.Exif.FirstOrDefault(e => e.Tag == "FocalLength");
                 var fetchedFocalLength =
@@ -244,17 +243,21 @@ public class Investigator : IInvestigator
                     photo.PhotoId, photo.Camera?.Name,
                     photo.Lens?.Name, photo.FocalLengthInMm, photo.FNumber, photo.Iso?.ToString("N0"),
                     photo.DateTimeShot);
+
+                await _dbContext.SaveChangesAsync();
             }
 
-            await _dbContext.SaveChangesAsync();
-            photosWithoutExif = GetPhotosWithoutExif();
-        } while (await photosWithoutExif.AnyAsync());
+            photosWithoutExif = await GetPhotosWithoutExif();
+        } while (photosWithoutExif.Any());
     }
 
-    private IQueryable<Photo> GetPhotosWithoutExif()
+    private Task<List<Photo>> GetPhotosWithoutExif()
     {
-        return _dbContext.Photos.Where(p =>
-            !p.IsExifFetched && !p.IsSkipped).Take(_options.ExifSaveBatchSize);
+        return _dbContext.Photos
+            .Where(p => !p.IsExifFetched && !p.IsSkipped)
+            .OrderBy(p => p.PhotoId)
+            .Take(_options.ExifSaveBatchSize)
+            .ToListAsync();
     }
 
     private async Task SavePhotos(GenericPhotosResponse photosResponse)

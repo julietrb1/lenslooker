@@ -56,9 +56,17 @@ IHost BuildHost()
         .Build();
 }
 
-using (SentrySdk.Init())
+using var sdk = SentrySdk.Init(o => { o.TracesSampleRate = 1.0; });
+
+try
 {
     var host = BuildHost();
     Console.WriteLine("Starting Focal Investigator.");
     await host.Services.GetRequiredService<IInvestigator>().Investigate();
+}
+catch (Exception e)
+{
+    SentrySdk.CaptureException(e);
+    await SentrySdk.FlushAsync(TimeSpan.FromSeconds(2));
+    throw;
 }

@@ -4,6 +4,7 @@ services:
     environment:
       CUSTOMCONNSTR_LensLookerContext: "${CONNSTR}"
       FlickrOptions__ApiKey: "${APIKEY}"
+      FlickrOptions__ExifSaveBatchSize: 50
       FlickrOptions__FetchOwners: true
       FlickrOptions__TagsToFetch__0: Canon
       FlickrOptions__PreferredLenses__0: RF50mm F1.2 L USM
@@ -19,7 +20,7 @@ services:
   site:
     environment:
       CUSTOMCONNSTR_LensLookerContext: "${CONNSTR}"
-      SENTRY_DSN: "${SENTRY_DSN_SITE}"
+      Sentry__Dsn: "${SENTRY_DSN_SITE}"
     image: registry.digitalocean.com/floating-barrels/lenslooker-site:latest
     ports:
       - 8080:80/tcp
