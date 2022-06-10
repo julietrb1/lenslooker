@@ -85,7 +85,7 @@ public class Investigator : IInvestigator
                 await _dbContext.SaveChangesAsync();
             }
 
-            _logger.LogInformation("DB has {} photos after fetching owners",
+            _logger.LogInformation("Database has {} photos after fetching owners",
                 (await _dbContext.Photos.CountAsync()).ToString("N0"));
         }
 
