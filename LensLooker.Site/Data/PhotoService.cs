@@ -59,7 +59,7 @@ internal class PhotoService : IPhotoService
 
         var skip = (pageNumber - 1) * pageSize;
         return new PhotosResult(totalCount, photos
-            .Select(p => p.ToViewModel(ModelExtensions.PhotoSize.Small400))
+            .Select(p => p.ToViewModel(ModelExtensions.PhotoSize.Small320))
             .Skip(skip)
             .Take(pageSize));
     }
