@@ -189,7 +189,7 @@ public class Investigator : IInvestigator
                         ownerStrikeCountMap.TryGetValue(photo.OwnerId, out var ownerPhotoCount);
                         ownerStrikeCountMap[photo.OwnerId] = ownerPhotoCount + 1;
                         _logger.LogWarning(
-                            "At {Strikes}/{TotalStrikes} for owner because of EXIF permission denied for photo '{PhotoId}'",
+                            "At {Strikes}/{TotalStrikes} strikes for owner because of EXIF permission denied for photo '{PhotoId}'",
                             ownerStrikeCountMap[photo.OwnerId], _options.OwnerDeleteThreshold, photo.PhotoId);
                     }
                     else
