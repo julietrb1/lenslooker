@@ -265,9 +265,11 @@ public class Investigator : IInvestigator
                     photo.PhotoId, photo.Camera?.Name,
                     photo.Lens?.Name, photo.FocalLengthInMm, photo.FNumber, photo.Iso?.ToString("N0"),
                     photo.DateTimeShot);
+
+                // Need to save at this point so the related Camera and Lens models are created.
+                await _dbContext.SaveChangesAsync();
             }
 
-            // Saving again for good measure
             await _dbContext.SaveChangesAsync();
             photosWithoutExif = await GetPhotosWithoutExif();
         } while (photosWithoutExif.Any());
@@ -275,7 +277,7 @@ public class Investigator : IInvestigator
 
     private Task<List<Photo>> GetPhotosWithoutExif()
     {
-        return _dbContext.Photos.AsNoTracking()
+        return _dbContext.Photos
             .Where(p => !p.IsExifFetched && !p.IsSkipped)
             .OrderBy(p => p.PhotoId)
             .Take(_options.ExifSaveBatchSize)
