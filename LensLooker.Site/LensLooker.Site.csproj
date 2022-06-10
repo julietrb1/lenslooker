@@ -21,4 +21,8 @@
       <PackageReference Include="Sentry.AspNetCore" Version="3.17.1" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="Pages\PhotoGallery.razor.css" />
+    </ItemGroup>
+
 </Project>
