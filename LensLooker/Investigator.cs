@@ -247,6 +247,8 @@ public class Investigator : IInvestigator
                 await _dbContext.SaveChangesAsync();
             }
 
+            // Saving again for good measure
+            await _dbContext.SaveChangesAsync();
             photosWithoutExif = await GetPhotosWithoutExif();
         } while (photosWithoutExif.Any());
     }
