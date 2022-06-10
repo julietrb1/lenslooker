@@ -275,7 +275,7 @@ public class Investigator : IInvestigator
 
     private Task<List<Photo>> GetPhotosWithoutExif()
     {
-        return _dbContext.Photos
+        return _dbContext.Photos.AsNoTracking()
             .Where(p => !p.IsExifFetched && !p.IsSkipped)
             .OrderBy(p => p.PhotoId)
             .Take(_options.ExifSaveBatchSize)
