@@ -22,7 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="Pages\PhotoGallery.razor.css" />
+      <Content Include="Shared\PhotoGallery.razor.css" />
     </ItemGroup>
 
 </Project>
