@@ -32,62 +32,11 @@ public class Investigator : IInvestigator
 
     public async Task Investigate()
     {
-        if (_options.TagsToFetch?.Any() == true)
-        {
-            _logger.LogInformation("Fetching tags (currently {} photos)",
-                (await _dbContext.Photos.CountAsync()).ToString("N0"));
-            await RefreshPhotosFromFlickr(photosPage => _photosClient.Search(new SearchRequest
-                { Page = photosPage, PerPage = _options.PageSize, Tags = _options.TagsToFetch }));
-            _logger.LogInformation("Tags fetched (currently {} photos)",
-                (await _dbContext.Photos.CountAsync()).ToString("N0"));
-            await _dbContext.SaveChangesAsync();
-        }
+        if (_options.TagsToFetch?.Any() == true) await FetchPhotosWithTags();
 
-        if (_options.PreferredLenses?.Any() == true)
-            foreach (var lensName in _options.PreferredLenses)
-            {
-                var lens = await _dbContext.Lenses.FindAsync(lensName);
-                if (lens == null)
-                {
-                    _logger.LogWarning("No preferred lens '{}' found", lensName);
-                    continue;
-                }
+        if (_options.PreferredLenses?.Any() == true) await FetchPreferredLenses();
 
-                _logger.LogInformation("Fetching photos for owners of lens '{}'", lensName);
-                await _dbContext.Entry(lens).Collection(l => l.Photos).LoadAsync();
-
-                foreach (var ownerGroup in lens.Photos.GroupBy(p => p.OwnerId))
-                {
-                    _logger.LogInformation("Fetching photos of user '{OwnerId}' (for lens '{LensName}')",
-                        ownerGroup.Key, lensName);
-                    await RefreshPhotosFromFlickr(photosPage =>
-                        _peopleClient.GetPublicPhotos(new GetPublicPhotosRequest(ownerGroup.Key)
-                            { Page = photosPage, PerPage = _options.PageSize }), true);
-                }
-
-                await _dbContext.SaveChangesAsync();
-            }
-
-        if (_options.FetchOwners)
-        {
-            _logger.LogInformation("DB has {} photos before fetching owners",
-                (await _dbContext.Photos.CountAsync()).ToString("N0"));
-            var ownerIds = await _dbContext.Photos.Select(p => p.OwnerId).GroupBy(o => o).Select(g => g.Key)
-                .ToListAsync();
-            foreach (var ownerId in ownerIds)
-            {
-                _logger.LogInformation("Fetching photos for owner {}", ownerId);
-                await RefreshPhotosFromFlickr(photosPage => _peopleClient.GetPublicPhotos(
-                    new GetPublicPhotosRequest(ownerId)
-                        { Page = photosPage, PerPage = _options.PageSize }), true);
-                // It's safe to save here, since the foreach loop has been ToListed, meaning that a nested SQL query
-                // won't be made
-                await _dbContext.SaveChangesAsync();
-            }
-
-            _logger.LogInformation("Database has {} photos after fetching owners",
-                (await _dbContext.Photos.CountAsync()).ToString("N0"));
-        }
+        if (_options.FetchOwners) await FetchOwners();
 
         if (_options.FetchExif)
         {
@@ -98,7 +47,66 @@ public class Investigator : IInvestigator
             }
 
             // Changes saved within, so no need to save changes on context here.
-            await SavePhotoExif();
+            await FetchPhotoExif();
+        }
+    }
+
+    private async Task FetchPhotosWithTags()
+    {
+        _logger.LogInformation("Fetching tags (currently {} photos)",
+            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+        await RefreshPhotosFromFlickr(photosPage => _photosClient.Search(new SearchRequest
+            { Page = photosPage, PerPage = _options.PageSize, Tags = _options.TagsToFetch }));
+        _logger.LogInformation("Tags fetched (currently {} photos)",
+            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+        await _dbContext.SaveChangesAsync();
+    }
+
+    private async Task FetchOwners()
+    {
+        _logger.LogInformation("DB has {} photos before fetching owners",
+            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+        var ownerIds = await _dbContext.Photos.Select(p => p.OwnerId).GroupBy(o => o).Select(g => g.Key)
+            .ToListAsync();
+        foreach (var ownerId in ownerIds)
+        {
+            _logger.LogInformation("Fetching photos for owner {}", ownerId);
+            await RefreshPhotosFromFlickr(photosPage => _peopleClient.GetPublicPhotos(
+                new GetPublicPhotosRequest(ownerId)
+                    { Page = photosPage, PerPage = _options.PageSize }), true);
+            // It's safe to save here, since the foreach loop has been ToListed, meaning that a nested SQL query
+            // won't be made
+            await _dbContext.SaveChangesAsync();
+        }
+
+        _logger.LogInformation("Database has {} photos after fetching owners",
+            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+    }
+
+    private async Task FetchPreferredLenses()
+    {
+        foreach (var lensName in _options.PreferredLenses)
+        {
+            var lens = await _dbContext.Lenses.FindAsync(lensName);
+            if (lens == null)
+            {
+                _logger.LogWarning("No preferred lens '{}' found", lensName);
+                continue;
+            }
+
+            _logger.LogInformation("Fetching photos for owners of lens '{}'", lensName);
+            await _dbContext.Entry(lens).Collection(l => l.Photos).LoadAsync();
+
+            foreach (var ownerGroup in lens.Photos.GroupBy(p => p.OwnerId))
+            {
+                _logger.LogInformation("Fetching photos of user '{OwnerId}' (for lens '{LensName}')",
+                    ownerGroup.Key, lensName);
+                await RefreshPhotosFromFlickr(photosPage =>
+                    _peopleClient.GetPublicPhotos(new GetPublicPhotosRequest(ownerGroup.Key)
+                        { Page = photosPage, PerPage = _options.PageSize }), true);
+            }
+
+            await _dbContext.SaveChangesAsync();
         }
     }
 
@@ -139,7 +147,7 @@ public class Investigator : IInvestigator
                  photosResponse.Photos.Pages > photosPage++);
     }
 
-    private async Task SavePhotoExif()
+    private async Task FetchPhotoExif()
     {
         _logger.LogInformation("Fetching missing EXIF data for all photos");
         var photosWithoutExif = await GetPhotosWithoutExif();
