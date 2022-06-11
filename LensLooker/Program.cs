@@ -22,7 +22,7 @@ static IAsyncPolicy<HttpResponseMessage> GetRetryPolicy()
 static IAsyncPolicy<HttpResponseMessage> GetRateLimitPolicy()
 {
     return Policy
-        .RateLimitAsync<HttpResponseMessage>(3600, TimeSpan.FromHours(1), 10);
+        .RateLimitAsync<HttpResponseMessage>(3600, TimeSpan.FromHours(1), 4);
 }
 
 IHost BuildHost()

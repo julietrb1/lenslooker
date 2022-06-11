@@ -15,7 +15,7 @@ public class FlickrClient : IFlickrClient
     private readonly HttpClient _httpClient;
     private readonly ILogger<FlickrClient> _logger;
     private readonly int _secondsBetweenRequests;
-    private readonly SemaphoreSlim _semaphoreSlim = new(1, 1);
+    private readonly SemaphoreSlim _semaphoreSlim = new(1);
     private DateTime? _lastRequestAt;
 
     protected FlickrClient(IOptions<FlickrOptions> options, HttpClient httpClient, ILogger<FlickrClient> logger)
@@ -68,12 +68,10 @@ public class FlickrClient : IFlickrClient
                 Thread.Sleep(nextRequestIn);
             }
 
-            HttpResponseMessage response;
             while (true)
                 try
                 {
-                    response = await _httpClient.SendAsync(requestMessage);
-                    break;
+                    return (await _httpClient.SendAsync(requestMessage)).EnsureSuccessStatusCode();
                 }
                 catch (RateLimitRejectedException)
                 {
@@ -81,9 +79,10 @@ public class FlickrClient : IFlickrClient
                     _logger.LogWarning("Sleeping for {} seconds as Flickr request rate limited", sleepSeconds);
                     Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
                 }
-
-            _lastRequestAt = DateTime.Now;
-            return response.EnsureSuccessStatusCode();
+                finally
+                {
+                    _lastRequestAt = DateTime.Now;
+                }
         }
         finally
         {
