@@ -1,22 +1,31 @@
 using LensLooker.Data;
+using LensLooker.Site.Config;
 using LensLooker.Site.Data;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables();
 
-builder.WebHost.UseSentry(o => { o.TracesSampleRate = 1.0; });
+if (!builder.Environment.IsDevelopment())
+    builder.WebHost.UseSentry(o => { o.TracesSampleRate = 1.0; });
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddScoped<IPhotoService, PhotoService>();
+
+builder.Services.Configure<SiteOptions>(builder.Configuration.GetRequiredSection(nameof(SiteOptions)));
+
 builder.Services.AddDbContext<LensLookerContext>(b =>
     b.UseSqlServer(builder.Configuration.GetConnectionString("LensLookerContext")));
 
+builder.Services.AddScoped<IPhotoService, PhotoService>();
+
 var app = builder.Build();
 
-var context = app.Services.GetRequiredService<LensLookerContext>();
-if (context.Database.GetPendingMigrations().Any()) context.Database.Migrate();
+using (var serviceScope = app.Services.CreateScope())
+{
+    var context = serviceScope.ServiceProvider.GetRequiredService<LensLookerContext>();
+    if (context.Database.GetPendingMigrations().Any()) context.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -29,7 +38,10 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
-app.UseSentryTracing();
+
+if (!app.Environment.IsDevelopment())
+    app.UseSentryTracing();
+
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 

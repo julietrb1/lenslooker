@@ -2,17 +2,25 @@ using System.Linq.Expressions;
 using LensLooker.Api.Flickr.SharedInfo;
 using LensLooker.Data;
 using LensLooker.Data.Models;
+using LensLooker.Site.Caching;
+using LensLooker.Site.Config;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace LensLooker.Site.Data;
 
 internal class PhotoService : IPhotoService
 {
     private readonly LensLookerContext _dbContext;
+    private readonly IMemoryCache _memoryCache;
+    private readonly SiteOptions _options;
 
-    public PhotoService(LensLookerContext dbContext)
+    public PhotoService(LensLookerContext dbContext, IMemoryCache memoryCache, IOptions<SiteOptions> options)
     {
         _dbContext = dbContext;
+        _memoryCache = memoryCache;
+        _options = options.Value;
     }
 
     // TODO: This should really use `canConstructUrl` from the `Photo` model, but that causes LINQ errors. Sad.
@@ -23,17 +31,39 @@ internal class PhotoService : IPhotoService
 
     public Dictionary<string, IEnumerable<LensViewModel>> GetLenses()
     {
-        var lensEnumerable = _dbContext.Lenses
+        return _memoryCache.GetOrCreate(
+            CacheKeys.LensesKey,
+            cacheEntry =>
+            {
+                cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.LensCacheExpirationMinutes);
+                return GetLensesFromDatabase();
+            });
+    }
+
+    public async Task<PhotosResult> GetPhotos(string? lensName, int pageNumber, int pageSize)
+    {
+        return await _memoryCache.GetOrCreateAsync(
+            CacheKeys.BuildPhotosCacheKey(lensName, pageNumber, pageSize),
+            async cacheEntry =>
+            {
+                cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.PhotoCacheExpirationMinutes);
+                return await GetPhotosFromDatabase(lensName, pageNumber, pageSize);
+            });
+    }
+
+    private Dictionary<string, IEnumerable<LensViewModel>> GetLensesFromDatabase()
+    {
+        var lensList = _dbContext.Lenses
             .Include(e => e.Photos)
             .ToList();
         return new Dictionary<string, IEnumerable<LensViewModel>>
         {
-            ["EF lenses"] = lensEnumerable
+            ["EF lenses"] = lensList
                 .Where(l => PhotoInfo.EfLensRegex.IsMatch(l.Name))
                 .Select(l => l.ToViewModel())
                 .Where(vm => vm.PhotoCount > 0)
                 .OrderByDescending(vm => vm.PhotoCount),
-            ["RF lenses"] = lensEnumerable
+            ["RF lenses"] = lensList
                 .Where(l => PhotoInfo.RfLensRegex.IsMatch(l.Name))
                 .Select(l => l.ToViewModel())
                 .Where(vm => vm.PhotoCount > 0)
@@ -41,19 +71,20 @@ internal class PhotoService : IPhotoService
         };
     }
 
-    public PhotosResult GetPhotos(string? lensName, int pageNumber, int pageSize)
+    private async Task<PhotosResult> GetPhotosFromDatabase(string? lensName, int pageNumber, int pageSize)
     {
-        var lens = _dbContext.Lenses.Find(lensName);
-        var photos = _dbContext
+        var lens = await _dbContext.Lenses.FindAsync(lensName);
+        var photos = await _dbContext
             .Photos
             .Where(LensPredicate(lens))
             .Where(UrlInfoPredicate)
             .OrderBy(p => p.PhotoId)
             .Include(e => e.Camera)
             .Include(e => e.Lens)
-            .AsNoTracking();
+            .AsNoTracking()
+            .ToListAsync();
 
-        var totalCount = photos.Count();
+        var totalCount = photos.Count;
         var pageCount = (int)Math.Max(1, Math.Ceiling(totalCount / (double)pageSize));
         pageNumber = pageNumber <= pageCount && pageNumber > 0 ? pageNumber : 1;
 

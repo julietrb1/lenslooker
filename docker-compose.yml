@@ -5,7 +5,7 @@ services:
       CUSTOMCONNSTR_LensLookerContext: "${CONNSTR}"
       FlickrOptions__ApiKey: "${APIKEY}"
       FlickrOptions__ExifSaveBatchSize: 50
-      FlickrOptions__FetchOwners: true
+      FlickrOptions__FetchOwners: "true"
       FlickrOptions__TagsToFetch__0: Canon
       FlickrOptions__PreferredLenses__0: RF50mm F1.2 L USM
       FlickrOptions__PreferredLenses__1: RF85mm F1.2 L USM
@@ -37,7 +37,7 @@ services:
       interval: 10s
       timeout: 3s
       retries: 10
-      start_period: 10s
+      start_period: 20s
     volumes:
       - ./.db/data:/var/opt/mssql/data
       - ./.db/log:/var/opt/mssql/log

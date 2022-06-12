@@ -7,7 +7,7 @@
     <h1>@(LensName ?? "All lenses")</h1>
     <h2 class="text-muted h4 mb-4">Page @PageNumber.ToString("N0") of @PageCount.ToString("N0")</h2>
 
-    <p class="small">Press <code>j</code> for the previous page, and <code>l</code> for the next.</p>
+    <p class="small">Press <code>j</code>/<code>l</code> for previous/next page.</p>
 
     <div class="row mb-4">
         <div class="col-md-3">
@@ -59,13 +59,13 @@
     {
         LensName = e.Value as string;
         PageNumber = 1;
-        LoadPhotos();
+        Task.Run(LoadPhotos).Wait();
     }
 
-    private void HandlePageChange()
+    private async Task HandlePageChange()
     {
         PageNumber = int.TryParse(PageNumberString, out var parsedPageNumber) ? parsedPageNumber : 1;
-        LoadPhotos();
+        await LoadPhotos();
     }
 
     ElementReference _container;
@@ -101,17 +101,17 @@
 
     private int PageCount => FilteredPhotos != null ? (int)Math.Max(1, Math.Ceiling(TotalPhotoCount / (double)PageSize)) : 1;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         LensGroups = PhotoService.GetLenses();
-        LoadPhotos();
+        await LoadPhotos();
     }
 
-    private void LoadPhotos()
+    private async Task LoadPhotos()
     {
         PageNumberString = PageNumber.ToString();
         FilteredPhotos = null;
-        (TotalPhotoCount, FilteredPhotos) = PhotoService.GetPhotos(LensName, PageNumber, PageSize);
+        (TotalPhotoCount, FilteredPhotos) = await PhotoService.GetPhotos(LensName, PageNumber, PageSize);
     }
 
     private IEnumerable<PhotoViewModel>? FilteredPhotos { get; set; }
@@ -124,35 +124,35 @@
     private bool HasPreviousPage => PageNumber > 1;
     private bool HasNextPage => PageNumber < PageCount;
 
-    private void OnKeyPress(KeyboardEventArgs args)
+    private async Task OnKeyPress(KeyboardEventArgs args)
     {
         switch (args.Key)
         {
             case "j" when HasPreviousPage:
-                LoadPreviousPage();
+                await LoadPreviousPage();
                 break;
             case "l" when HasNextPage:
-                LoadNextPage();
+                await LoadNextPage();
                 break;
         }
     }
 
-    private void LoadNextPage()
+    private async Task LoadNextPage()
     {
         PageNumber += 1;
-        LoadPhotos();
+        await LoadPhotos();
     }
 
-    private void LoadPreviousPage()
+    private async Task LoadPreviousPage()
     {
         PageNumber -= 1;
-        LoadPhotos();
+        await LoadPhotos();
     }
 
-    private void OnPageSizeChange(int pageSize)
+    private async Task OnPageSizeChange(int pageSize)
     {
         PageSize = pageSize;
-        LoadPhotos();
+        await LoadPhotos();
     }
 
 }
