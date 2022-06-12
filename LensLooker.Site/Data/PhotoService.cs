@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using LensLooker.Api.Flickr.SharedInfo;
 using LensLooker.Data;
 using LensLooker.Data.Models;
@@ -13,6 +14,15 @@ namespace LensLooker.Site.Data;
 internal class PhotoService : IPhotoService
 {
     private readonly LensLookerContext _dbContext;
+
+    private readonly Dictionary<string, Regex> _lensRegexPairs = new()
+    {
+        ["Canon EF"] = PhotoInfo.CanonEfLensRegex,
+        ["Canon RF"] = PhotoInfo.CanonRfLensRegex,
+        ["Sony DT"] = PhotoInfo.SonyDtLensRegex,
+        ["Sony FE"] = PhotoInfo.SonyFeLensRegex
+    };
+
     private readonly IMemoryCache _memoryCache;
     private readonly SiteOptions _options;
 
@@ -29,7 +39,7 @@ internal class PhotoService : IPhotoService
              !string.IsNullOrWhiteSpace(p.Secret) &&
              !string.IsNullOrWhiteSpace(p.OwnerId);
 
-    public Dictionary<string, IEnumerable<LensViewModel>> GetLenses()
+    public Dictionary<string, IOrderedEnumerable<LensViewModel>> GetLenses()
     {
         return _memoryCache.GetOrCreate(
             CacheKeys.LensesKey,
@@ -51,24 +61,16 @@ internal class PhotoService : IPhotoService
             });
     }
 
-    private Dictionary<string, IEnumerable<LensViewModel>> GetLensesFromDatabase()
+    private Dictionary<string, IOrderedEnumerable<LensViewModel>> GetLensesFromDatabase()
     {
         var lensList = _dbContext.Lenses
             .Include(e => e.Photos)
             .ToList();
-        return new Dictionary<string, IEnumerable<LensViewModel>>
-        {
-            ["EF lenses"] = lensList
-                .Where(l => PhotoInfo.EfLensRegex.IsMatch(l.Name))
-                .Select(l => l.ToViewModel())
-                .Where(vm => vm.PhotoCount > 0)
-                .OrderByDescending(vm => vm.PhotoCount),
-            ["RF lenses"] = lensList
-                .Where(l => PhotoInfo.RfLensRegex.IsMatch(l.Name))
-                .Select(l => l.ToViewModel())
-                .Where(vm => vm.PhotoCount > 0)
-                .OrderByDescending(vm => vm.PhotoCount)
-        };
+        return _lensRegexPairs.ToDictionary(p => p.Key, p => lensList
+            .Where(l => p.Value.IsMatch(l.Name))
+            .Select(l => l.ToViewModel())
+            .Where(vm => vm.PhotoCount > 0)
+            .OrderByDescending(vm => vm.PhotoCount));
     }
 
     private async Task<PhotosResult> GetPhotosFromDatabase(string? lensName, int pageNumber, int pageSize)

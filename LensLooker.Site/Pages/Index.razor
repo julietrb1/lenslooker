@@ -116,7 +116,7 @@
 
     private IEnumerable<PhotoViewModel>? FilteredPhotos { get; set; }
 
-    private Dictionary<string, IEnumerable<LensViewModel>>? LensGroups { get; set; }
+    private Dictionary<string, IOrderedEnumerable<LensViewModel>>? LensGroups { get; set; }
 
     private int _pageNumber = 1;
     private int _pageSize = ValidPageSizes.First();
