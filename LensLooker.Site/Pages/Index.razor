@@ -99,7 +99,7 @@
 
     private int TotalPhotoCount { get; set; }
 
-    private int PageCount => FilteredPhotos != null ? (int)Math.Max(1, Math.Ceiling(TotalPhotoCount / (double)PageSize)) : 1;
+    private int PageCount => TotalPhotoCount != 0 ? (int)Math.Max(1, Math.Ceiling(TotalPhotoCount / (double)PageSize)) : 1;
 
     protected override async Task OnInitializedAsync()
     {
