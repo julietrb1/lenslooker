@@ -8,7 +8,7 @@ else
     <div class="row">
         @foreach (var photo in Photos)
         {
-            <div class="col-sm-12 col-md-6 col-lg-4 col-xxl-3 p-2">
+            <div class="col-sm-12 col-md-6 col-lg-4 col-xxl-3 p-2 text-center">
                 <a href="@photo.ViewingUrl" target="_blank">
                     <img src="@photo.Src" alt="@photo.Title" class="photo"/>
                 </a>
