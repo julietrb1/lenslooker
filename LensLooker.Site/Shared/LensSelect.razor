@@ -24,10 +24,10 @@
 
     [Parameter]
     [EditorRequired]
-    public Dictionary<string, IEnumerable<LensViewModel>>? LensGroups { get; set; }
+    public Dictionary<string, IOrderedEnumerable<LensViewModel>>? LensGroups { get; set; }
 
     [Parameter]
     [EditorRequired]
-    public Action<ChangeEventArgs> OnLensChange { get; set; }
+    public Action<ChangeEventArgs>? OnLensChange { get; set; }
 
 }
