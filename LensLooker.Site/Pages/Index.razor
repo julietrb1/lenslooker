@@ -101,8 +101,9 @@
 
     private int PageCount => TotalPhotoCount != 0 ? (int)Math.Max(1, Math.Ceiling(TotalPhotoCount / (double)PageSize)) : 1;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (!firstRender) return;
         LensGroups = PhotoService.GetLenses();
         await LoadPhotos();
     }
