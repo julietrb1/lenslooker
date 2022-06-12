@@ -1,3 +1,4 @@
+using LensLooker.Api.Flickr.Client.Common;
 using LensLooker.Api.Flickr.Client.People.Models;
 using LensLooker.Api.Flickr.Client.Photos.Models;
 

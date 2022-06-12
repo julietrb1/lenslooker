@@ -1,3 +1,6 @@
+using LensLooker.Api.Flickr.Client.Common;
+using LensLooker.Api.Flickr.Client.GroupsPools;
+using LensLooker.Api.Flickr.Client.GroupsPools.Models;
 using LensLooker.Api.Flickr.Client.People;
 using LensLooker.Api.Flickr.Client.People.Models;
 using LensLooker.Api.Flickr.Client.Photos;
@@ -15,16 +18,19 @@ namespace LensLooker;
 public class Investigator : IInvestigator
 {
     private readonly LensLookerContext _dbContext;
+    private readonly IGroupsPoolsClient _groupsPoolsClient;
     private readonly ILogger<Investigator> _logger;
     private readonly FlickrOptions _options;
     private readonly IPeopleClient _peopleClient;
     private readonly IPhotosClient _photosClient;
 
-    public Investigator(IPhotosClient photosClient, IPeopleClient peopleClient, ILogger<Investigator> logger,
+    public Investigator(IPhotosClient photosClient, IPeopleClient peopleClient, IGroupsPoolsClient groupsPoolsClient,
+        ILogger<Investigator> logger,
         LensLookerContext dbContext, IOptions<FlickrOptions> options)
     {
         _photosClient = photosClient;
         _peopleClient = peopleClient;
+        _groupsPoolsClient = groupsPoolsClient;
         _logger = logger;
         _dbContext = dbContext;
         _options = options.Value;
@@ -33,6 +39,8 @@ public class Investigator : IInvestigator
     public async Task Investigate()
     {
         if (_options.TagsToFetch?.Any() == true) await FetchPhotosWithTags();
+
+        if (_options.GroupsToFetch?.Any() == true) await FetchGroups();
 
         if (_options.PreferredLenses?.Any() == true) await FetchPreferredLenses();
 
@@ -58,6 +66,27 @@ public class Investigator : IInvestigator
         await RefreshPhotosFromFlickr(photosPage => _photosClient.Search(new SearchRequest
             { Page = photosPage, PerPage = _options.PageSize, Tags = _options.TagsToFetch }));
         _logger.LogInformation("Tags fetched (currently {} photos)",
+            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+        await _dbContext.SaveChangesAsync();
+    }
+
+    private async Task FetchGroups()
+    {
+        _logger.LogInformation("Fetching {GroupCount} groups (currently {CurrentCount} photos)",
+            _options.GroupsToFetch!.Count().ToString("N0"),
+            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+        foreach (var groupId in _options.GroupsToFetch!)
+        {
+            _logger.LogInformation("Fetching group {GroupId} (currently {CurrentCount} photos)", groupId,
+                await _dbContext.Photos.CountAsync());
+            await RefreshPhotosFromFlickr(photosPage => _groupsPoolsClient.GetPhotos(
+                new GroupsPoolsGetPhotosRequest(groupId)
+                    { Page = photosPage, PerPage = _options.PageSize }));
+            _logger.LogInformation("Finished fetching group {GroupId} (currently {CurrentCount} photos)", groupId,
+                await _dbContext.Photos.CountAsync());
+        }
+
+        _logger.LogInformation("Groups fetched (currently {} photos)",
             (await _dbContext.Photos.CountAsync()).ToString("N0"));
         await _dbContext.SaveChangesAsync();
     }

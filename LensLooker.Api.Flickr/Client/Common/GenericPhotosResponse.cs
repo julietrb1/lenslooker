@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using LensLooker.Api.Flickr.Client.Models;
 
-namespace LensLooker.Api.Flickr.Client.People.Models;
+namespace LensLooker.Api.Flickr.Client.Common;
 
 public record PhotoResponse(
     [property: JsonPropertyName("id")] string Id,

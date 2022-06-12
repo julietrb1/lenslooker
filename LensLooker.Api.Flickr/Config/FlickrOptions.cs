@@ -12,4 +12,5 @@ public class FlickrOptions
     public IEnumerable<string>? PreferredLenses { get; set; }
     public int? OwnerDeleteThreshold { get; set; }
     public int ExifSaveBatchSize { get; set; }
+    public IEnumerable<string>? GroupsToFetch { get; set; }
 }
