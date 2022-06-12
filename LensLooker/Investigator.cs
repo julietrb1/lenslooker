@@ -62,11 +62,11 @@ public class Investigator : IInvestigator
     private async Task FetchPhotosWithTags()
     {
         _logger.LogInformation("Fetching tags (currently {} photos)",
-            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+            await GetCurrentCountString());
         await RefreshPhotosFromFlickr(photosPage => _photosClient.Search(new SearchRequest
             { Page = photosPage, PerPage = _options.PageSize, Tags = _options.TagsToFetch }));
         _logger.LogInformation("Tags fetched (currently {} photos)",
-            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+            await GetCurrentCountString());
         await _dbContext.SaveChangesAsync();
     }
 
@@ -74,11 +74,11 @@ public class Investigator : IInvestigator
     {
         _logger.LogInformation("Fetching {GroupCount} groups (currently {CurrentCount} photos)",
             _options.GroupsToFetch!.Count().ToString("N0"),
-            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+            await GetCurrentCountString());
         foreach (var groupId in _options.GroupsToFetch!)
         {
             _logger.LogInformation("Fetching group {GroupId} (currently {CurrentCount} photos)", groupId,
-                await _dbContext.Photos.CountAsync());
+                await GetCurrentCountString());
             await RefreshPhotosFromFlickr(photosPage => _groupsPoolsClient.GetPhotos(
                 new GroupsPoolsGetPhotosRequest(groupId)
                     { Page = photosPage, PerPage = _options.PageSize }));
@@ -87,20 +87,25 @@ public class Investigator : IInvestigator
         }
 
         _logger.LogInformation("Groups fetched (currently {} photos)",
-            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+            await GetCurrentCountString());
         await _dbContext.SaveChangesAsync();
+    }
+
+    private async Task<string> GetCurrentCountString()
+    {
+        return (await _dbContext.Photos.CountAsync()).ToString("N0");
     }
 
     private async Task FetchOwners()
     {
         _logger.LogInformation("DB has {} photos before fetching owners",
-            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+            await GetCurrentCountString());
         var ownerIds = await _dbContext.Photos.Select(p => p.OwnerId).GroupBy(o => o).Select(g => g.Key)
             .ToListAsync();
         foreach (var ownerId in ownerIds) await FetchOwner(ownerId);
 
         _logger.LogInformation("Database has {} photos after fetching owners",
-            (await _dbContext.Photos.CountAsync()).ToString("N0"));
+            await GetCurrentCountString());
     }
 
     private async Task FetchOwner(string ownerId)
