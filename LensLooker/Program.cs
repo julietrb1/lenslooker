@@ -1,4 +1,5 @@
 ﻿using LensLooker;
+using LensLooker.Api.Flickr.Client.GroupsPools;
 using LensLooker.Api.Flickr.Client.People;
 using LensLooker.Api.Flickr.Client.Photos;
 using LensLooker.Api.Flickr.Config;
@@ -50,6 +51,11 @@ IHost BuildHost()
 
             services
                 .AddHttpClient<IPeopleClient, PeopleClient>()
+                .AddPolicyHandler(GetRetryPolicy())
+                .AddPolicyHandler(GetRateLimitPolicy());
+
+            services
+                .AddHttpClient<IGroupsPoolsClient, GroupsPoolsClient>()
                 .AddPolicyHandler(GetRetryPolicy())
                 .AddPolicyHandler(GetRateLimitPolicy());
         })
