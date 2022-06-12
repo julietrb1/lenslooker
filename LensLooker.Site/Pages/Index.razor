@@ -14,7 +14,7 @@
             <LensSelect LensGroups="@LensGroups" OnLensChange="@OnLensChange"/>
         </div>
         <div class="col-md-3">
-            <PageSizeSelect PageSize="@PageSize" OnPageSizeChange="@OnPageSizeChange" ValidPageSizes="@_validPageSizes"/>
+            <PageSizeSelect PageSize="@PageSize" OnPageSizeChange="@OnPageSizeChange" ValidPageSizes="@ValidPageSizes"/>
         </div>
     </div>
 
@@ -53,7 +53,7 @@
 </div>
 
 @code {
-    private readonly int[] _validPageSizes = { 10, 25, 50, 100 };
+    private static readonly int[] ValidPageSizes = { 25, 50, 100 };
 
     private void OnLensChange(ChangeEventArgs e)
     {
@@ -94,7 +94,7 @@
     public int PageSize
     {
         get => _pageSize;
-        set => _pageSize = value != 0 ? value : 10;
+        set => _pageSize = value != 0 ? value : ValidPageSizes.First();
     }
 
     private int TotalPhotoCount { get; set; }
@@ -119,7 +119,7 @@
     private Dictionary<string, IEnumerable<LensViewModel>>? LensGroups { get; set; }
 
     private int _pageNumber = 1;
-    private int _pageSize = 10;
+    private int _pageSize = ValidPageSizes.First();
 
     private bool HasPreviousPage => PageNumber > 1;
     private bool HasNextPage => PageNumber < PageCount;
