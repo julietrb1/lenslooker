@@ -114,9 +114,9 @@ public class Investigator : IInvestigator
             if (!await TryMatchCanonLensFamilies(lens, photoWithCamera))
                 _logger.LogWarning("Lens {Lens} family unmatched (from {CameraBrand} camera)", lens.Name,
                     photoWithCamera.Camera!.Brand?.Name);
-            else
-                await _dbContext.SaveChangesAsync();
         }
+
+        await _dbContext.SaveChangesAsync();
     }
 
     private async Task<bool> TryMatchCanonLensFamilies(Lens lens, Photo photoWithCamera)
