@@ -75,7 +75,7 @@ public class Investigator : IInvestigator
             if (matchingBrand == null)
             {
                 _logger.LogWarning("No brand found to assign to camera {Camera}", camera.Name);
-                return;
+                continue;
             }
 
             _logger.LogInformation("Assigning camera {Camera} to brand {Brand}", camera.Name, matchingBrand.Name);
