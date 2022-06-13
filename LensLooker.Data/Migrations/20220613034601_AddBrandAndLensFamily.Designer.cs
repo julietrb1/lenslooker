@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LensLooker.Data.Migrations
 {
     [DbContext(typeof(LensLookerContext))]
-    [Migration("20220613030015_AddBrandAndLensFamily")]
+    [Migration("20220613034601_AddBrandAndLensFamily")]
     partial class AddBrandAndLensFamily
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -78,6 +78,9 @@ namespace LensLooker.Data.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<string>("AliasOfName")
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int?>("BrandId")
                         .HasColumnType("int");
 
@@ -85,6 +88,8 @@ namespace LensLooker.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Name");
+
+                    b.HasIndex("AliasOfName");
 
                     b.HasIndex("BrandId");
 
@@ -226,6 +231,10 @@ namespace LensLooker.Data.Migrations
 
             modelBuilder.Entity("LensLooker.Data.Models.Lens", b =>
                 {
+                    b.HasOne("LensLooker.Data.Models.Lens", "AliasOf")
+                        .WithMany()
+                        .HasForeignKey("AliasOfName");
+
                     b.HasOne("LensLooker.Data.Models.Brand", "Brand")
                         .WithMany()
                         .HasForeignKey("BrandId");
@@ -235,6 +244,8 @@ namespace LensLooker.Data.Migrations
                         .HasForeignKey("LensFamilyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("AliasOf");
 
                     b.Navigation("Brand");
 
