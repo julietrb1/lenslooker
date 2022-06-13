@@ -101,7 +101,7 @@ public class Investigator : IInvestigator
                 photoWithCamera.Camera?.Name);
         }
 
-        foreach (var lens in _dbContext.Lenses)
+        foreach (var lens in await _dbContext.Lenses.ToListAsync())
         {
             var photoWithCamera = lens.Photos.FirstOrDefault(p => p.Camera != null);
             if (photoWithCamera == null)
