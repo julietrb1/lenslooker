@@ -28,7 +28,7 @@ internal class PhotoService : IPhotoService
              !string.IsNullOrWhiteSpace(p.Secret) &&
              !string.IsNullOrWhiteSpace(p.OwnerId);
 
-    public IEnumerable<IGrouping<LensFamily, Lens>> GetLenses()
+    public IEnumerable<IGrouping<string, Lens>> GetLenses()
     {
         return _memoryCache.GetOrCreate(
             CacheKeys.LensesKey,
@@ -50,7 +50,7 @@ internal class PhotoService : IPhotoService
             });
     }
 
-    private IEnumerable<IGrouping<LensFamily, Lens>> GetLensesFromDatabase()
+    private IEnumerable<IGrouping<string, Lens>> GetLensesFromDatabase()
     {
         var lensList = _dbContext.Lenses
             .Include(e => e.Photos)
@@ -58,8 +58,7 @@ internal class PhotoService : IPhotoService
             .ToList();
         return lensList
             .Where(l => l.LensFamily is not null)
-            .GroupBy(l => l.LensFamily)
-            .Where(l => l.Key is not null)!;
+            .GroupBy(l => $"{l.LensFamily!.CameraBrand.Name} {l.LensFamily.Name}");
     }
 
     private async Task<PhotosResult> GetPhotosFromDatabase(string? lensName, int pageNumber, int pageSize)

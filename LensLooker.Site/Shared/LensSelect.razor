@@ -9,7 +9,7 @@
         {
             @foreach (var group in LensGroups)
             {
-                <optgroup label="@group.Key.Name">
+                <optgroup label="@group.Key">
                     @foreach (var lens in group)
                     {
                         <option value="@lens.Name">(@lens.Photos.Count.ToString("N0")) @lens.Name</option>
@@ -24,7 +24,7 @@
 
     [Parameter]
     [EditorRequired]
-    public IEnumerable<IGrouping<LensFamily, Lens>>? LensGroups { get; set; }
+    public IEnumerable<IGrouping<string, Lens>>? LensGroups { get; set; }
 
     [Parameter]
     [EditorRequired]
