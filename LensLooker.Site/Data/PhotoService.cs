@@ -61,7 +61,8 @@ internal class PhotoService : IPhotoService
 
         return lenses
             .OrderByDescending(l => l.Photos.Count)
-            .GroupBy(l => $"{l.LensFamily!.CameraBrand.Name} {l.LensFamily.Name}");
+            .GroupBy(l => $"{l.LensFamily!.CameraBrand.Name} {l.LensFamily.Name}")
+            .OrderBy(g => g.Key);
     }
 
     private async Task<PhotosResult> GetPhotosFromDatabase(string? lensName, int pageNumber, int pageSize)
