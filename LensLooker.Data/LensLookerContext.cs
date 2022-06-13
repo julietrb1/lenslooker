@@ -20,8 +20,14 @@ public class LensLookerContext : DbContext
         var canonBrand = new Brand { Id = 1, Name = "Canon" };
 
         // Brands
-        modelBuilder.Entity<Brand>().HasData(canonBrand, new Brand { Id = 2, Name = "Nikon" },
-            new Brand { Id = 3, Name = "Sony" });
+        modelBuilder.Entity<Brand>().HasData(
+            canonBrand,
+            new Brand { Id = 2, Name = "Nikon" },
+            new Brand { Id = 3, Name = "Sony" },
+            new Brand { Id = 4, Name = "Leica" },
+            new Brand { Id = 5, Name = "Apple" },
+            new Brand { Id = 6, Name = "Pentax" }
+        );
 
         // Canon Lens families
         modelBuilder.Entity<LensFamily>().HasData(new
