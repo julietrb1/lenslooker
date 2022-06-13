@@ -88,6 +88,7 @@ public class Investigator : IInvestigator
 
         foreach (var lens in lensWithoutBrand)
         {
+            await _dbContext.Entry(lens).Collection(l => l.Photos).LoadAsync();
             var photoWithCamera = lens.Photos.FirstOrDefault(p => p.Camera != null);
             if (photoWithCamera == null)
             {
