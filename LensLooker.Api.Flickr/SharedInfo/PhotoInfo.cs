@@ -14,8 +14,8 @@ public static class PhotoInfo
     // Canon
     public static readonly Regex CanonEfLensRegex = new($"^EF{CanonLensSpec}{CanonLensPost}");
     public static readonly Regex CanonEfLLensRegex = new($"^EF{CanonLensSpec}L{CanonLensPost}");
-    public static readonly Regex CanonEfMLensRegex = new($"^EF-M{CanonLensSpec}L{CanonLensPost}");
-    public static readonly Regex CanonEfSLensRegex = new($"^EF-S{CanonLensSpec}L{CanonLensPost}");
+    public static readonly Regex CanonEfMLensRegex = new($"^EF-M{CanonLensSpec}{CanonLensPost}");
+    public static readonly Regex CanonEfSLensRegex = new($"^EF-S{CanonLensSpec}{CanonLensPost}");
     public static readonly Regex CanonRfLensRegex = new($"^RF{CanonLensSpec}{CanonLensPost}");
     public static readonly Regex CanonRfLLensRegex = new($"^RF{CanonLensSpec}L{CanonLensPost}");
 
