@@ -111,18 +111,18 @@ public class Investigator : IInvestigator
                 continue;
             }
 
-            await TryMatchCanonLensFamilies(lens, photoWithCamera);
-            await _dbContext.SaveChangesAsync();
+            if (!await TryMatchCanonLensFamilies(lens, photoWithCamera))
+                _logger.LogWarning("Lens {Lens} family unmatched (from {CameraBrand} camera", lens.Name,
+                    photoWithCamera.Camera!.Name);
+            else
+                await _dbContext.SaveChangesAsync();
         }
     }
 
-    private async Task TryMatchCanonLensFamilies(Lens lens, Photo photoWithCamera)
+    private async Task<bool> TryMatchCanonLensFamilies(Lens lens, Photo photoWithCamera)
     {
         if (photoWithCamera.Camera!.Name != "Canon")
-        {
-            _logger.LogWarning("Lens {Lens} isn't from a Canon camera", lens.Name);
-            return;
-        }
+            return false;
 
         foreach (var (regex, familyName) in PhotoInfo.CanonLensFamilyRegexes)
         {
@@ -130,10 +130,10 @@ public class Investigator : IInvestigator
             var matchedFamily = await _dbContext.LensFamilies.SingleOrDefaultAsync(f => f.Name == familyName);
             lens.LensFamily = matchedFamily;
             _logger.LogInformation("Matched lens {Lens} to family {Family}", lens.Name, matchedFamily?.Name);
-            return;
+            return true;
         }
 
-        _logger.LogWarning("Lens {Lens} unmatched to any family", lens.Name);
+        return false;
     }
 
     private async Task FetchPhotosWithTags()
