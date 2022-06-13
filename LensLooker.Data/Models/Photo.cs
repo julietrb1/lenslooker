@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace LensLooker.Data.Models;
 
 public class Photo
@@ -18,7 +20,13 @@ public class Photo
     public string? ExposureTime { get; set; }
     public int? Iso { get; set; }
     public int? FocalLengthInMm { get; set; }
-    public Camera? Camera { get; set; }
-    public Lens? Lens { get; set; }
+
+    [ForeignKey("Camera")] public string? CameraName { get; set; }
+
+    public virtual Camera? Camera { get; set; }
+
+    [ForeignKey("Lens")] public string? LensName { get; set; }
+
+    public virtual Lens? Lens { get; set; }
     public DateTime? DateTimeShot { get; set; }
 }
