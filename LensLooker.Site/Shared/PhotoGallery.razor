@@ -14,9 +14,9 @@ else
                 </a>
                 <div class="m-3">
                     <div>
-                        <strong>@(photo.Title ?? "(untitled photo)")</strong> | <small class="text-muted">@photo.OwnerId</small>
+                        @(photo.Title ?? "(untitled photo)") | <small class="text-muted">@photo.OwnerId</small>
                     </div>
-                    <div>@(photo.Camera ?? "(camera N/A)") | <span class="text-success">@(photo.Lens ?? "(lens N/A)")</span></div>
+                    <div>@(photo.Camera ?? "(camera N/A)") | <strong class="text-success">@(photo.Lens ?? "(lens N/A)")</strong></div>
                     <div style="color: grey">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)") | @(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)") | @(photo.ShutterSpeed ?? "(shutter speed N/A)")</div>
                 </div>
             </div>
