@@ -27,6 +27,9 @@ public static class PhotoInfo
     public static readonly Regex SonyFeLensRegex = new($"^FE{SonyLensSpec}{SonyLensPost}");
     public static readonly Regex SonyFeGLensRegex = new($"^FE{SonyLensSpec}{SonyGLensPost}");
     public static readonly Regex SonyFeZaLensRegex = new($"^FE{SonyLensSpec}{SonyZaLensPost}");
+    public static readonly Regex SonySalLensRegex = new($"^{SonyLensSpec}{SonyLensPost}");
+    public static readonly Regex SonySalGLensRegex = new($"^{SonyLensSpec}{SonyGLensPost}");
+    public static readonly Regex SonySalZaLensRegex = new($"^{SonyLensSpec}{SonyZaLensPost}");
 
     public static readonly Dictionary<Regex, string> CanonLensFamilyRegexes = new()
     {
@@ -46,6 +49,9 @@ public static class PhotoInfo
         [SonyELensRegex] = "E",
         [SonyFeLensRegex] = "FE",
         [SonyFeGLensRegex] = "FE G",
-        [SonyFeZaLensRegex] = "FE ZA"
+        [SonyFeZaLensRegex] = "FE ZA",
+        [SonySalLensRegex] = "SAL",
+        [SonySalGLensRegex] = "SAL G",
+        [SonySalZaLensRegex] = "SAL ZA"
     };
 }
