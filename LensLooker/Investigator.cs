@@ -112,8 +112,8 @@ public class Investigator : IInvestigator
             }
 
             if (!await TryMatchCanonLensFamilies(lens, photoWithCamera))
-                _logger.LogWarning("Lens {Lens} family unmatched (from {CameraBrand} camera", lens.Name,
-                    photoWithCamera.Camera!.Name);
+                _logger.LogWarning("Lens {Lens} family unmatched (from {CameraBrand} camera)", lens.Name,
+                    photoWithCamera.Camera!.Brand?.Name);
             else
                 await _dbContext.SaveChangesAsync();
         }
@@ -121,7 +121,7 @@ public class Investigator : IInvestigator
 
     private async Task<bool> TryMatchCanonLensFamilies(Lens lens, Photo photoWithCamera)
     {
-        if (photoWithCamera.Camera!.Name != "Canon")
+        if (photoWithCamera.Camera!.Brand?.Name != "Canon")
             return false;
 
         foreach (var (regex, familyName) in PhotoInfo.CanonLensFamilyRegexes)
