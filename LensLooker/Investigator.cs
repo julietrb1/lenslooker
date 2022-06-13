@@ -107,13 +107,16 @@ public class Investigator : IInvestigator
             if (photoWithCamera == null)
             {
                 _logger.LogWarning("Lens {Lens} has no matching photo to infer family from camera", lens.Name);
+                lens.LensFamilyId = null;
                 continue;
             }
 
-            if (!await TryMatchCanonLensFamilies(lens, photoWithCamera) &&
-                !await TryMatchSonyLensFamilies(lens, photoWithCamera))
-                _logger.LogWarning("Lens {Lens} family unmatched (from {CameraBrand} camera)", lens.Name,
-                    photoWithCamera.Camera!.Brand?.Name);
+            if (await TryMatchCanonLensFamilies(lens, photoWithCamera) ||
+                await TryMatchSonyLensFamilies(lens, photoWithCamera)) continue;
+
+            _logger.LogWarning("Lens {Lens} family unmatched (from {CameraBrand} camera)", lens.Name,
+                photoWithCamera.Camera!.Brand?.Name);
+            lens.LensFamilyId = null;
         }
 
         await _dbContext.SaveChangesAsync();
