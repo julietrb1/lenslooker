@@ -11,7 +11,9 @@ services:
       FlickrOptions__PreferredLenses__1: RF85mm F1.2 L USM
       FlickrOptions__PreferredLenses__2: RF100mm F2.8 L MACRO IS USM
       SENTRY_DSN: "${SENTRY_DSN_INVESTIGATOR}"
-    image: registry.digitalocean.com/floating-barrels/lenslooker-investigator:latest
+    build:
+      context: .
+      dockerfile: LensLooker/Dockerfile
     depends_on:
       db:
         condition: service_healthy
@@ -21,7 +23,9 @@ services:
     environment:
       CUSTOMCONNSTR_LensLookerContext: "${CONNSTR}"
       Sentry__Dsn: "${SENTRY_DSN_SITE}"
-    image: registry.digitalocean.com/floating-barrels/lenslooker-site:latest
+    build:
+      context: .
+      dockerfile: LensLooker.Site/Dockerfile
     ports:
       - 8080:80/tcp
     depends_on:
