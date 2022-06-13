@@ -72,7 +72,12 @@ public class Investigator : IInvestigator
         {
             var matchingBrand =
                 brands.SingleOrDefault(b => camera.Name.ToLowerInvariant().StartsWith(b.Name.ToLowerInvariant()));
-            if (matchingBrand == null) return;
+            if (matchingBrand == null)
+            {
+                _logger.LogWarning("No brand found to assign to camera {Camera}", camera.Name);
+                return;
+            }
+
             _logger.LogInformation("Assigning camera {Camera} to brand {Brand}", camera.Name, matchingBrand.Name);
             camera.Brand = matchingBrand;
         }
