@@ -4,6 +4,7 @@ using LensLooker.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LensLooker.Data.Migrations
 {
     [DbContext(typeof(LensLookerContext))]
-    partial class LensLookerContextModelSnapshot : ModelSnapshot
+    [Migration("20220613042927_AddBrandsAndFamiliesToContext")]
+    partial class AddBrandsAndFamiliesToContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

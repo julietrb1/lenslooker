@@ -13,6 +13,7 @@ public class LensLookerContext : DbContext
     public DbSet<Lens> Lenses { get; set; }
     public DbSet<Camera> Cameras { get; set; }
     public DbSet<Brand> Brands { get; set; }
+    public DbSet<LensFamily> LensFamilies { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
