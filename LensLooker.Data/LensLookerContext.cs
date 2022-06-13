@@ -55,5 +55,7 @@ public class LensLookerContext : DbContext
             { Id = 11, Name = "FE G", CameraBrandId = sonyBrand.Id, SensorFormat = SensorFormat.FullFrame });
         modelBuilder.Entity<LensFamily>().HasData(new LensFamily
             { Id = 12, Name = "FE ZA", CameraBrandId = sonyBrand.Id, SensorFormat = SensorFormat.FullFrame });
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
+            { Id = 13, Name = "EF-M", CameraBrandId = canonBrand.Id, SensorFormat = SensorFormat.Crop });
     }
 }
