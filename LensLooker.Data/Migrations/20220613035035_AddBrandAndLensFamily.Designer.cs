@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LensLooker.Data.Migrations
 {
     [DbContext(typeof(LensLookerContext))]
-    [Migration("20220613034601_AddBrandAndLensFamily")]
+    [Migration("20220613035035_AddBrandAndLensFamily")]
     partial class AddBrandAndLensFamily
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,7 +84,7 @@ namespace LensLooker.Data.Migrations
                     b.Property<int?>("BrandId")
                         .HasColumnType("int");
 
-                    b.Property<int>("LensFamilyId")
+                    b.Property<int?>("LensFamilyId")
                         .HasColumnType("int");
 
                     b.HasKey("Name");
@@ -241,9 +241,7 @@ namespace LensLooker.Data.Migrations
 
                     b.HasOne("LensLooker.Data.Models.LensFamily", "LensFamily")
                         .WithMany()
-                        .HasForeignKey("LensFamilyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("LensFamilyId");
 
                     b.Navigation("AliasOf");
 

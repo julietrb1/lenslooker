@@ -82,7 +82,7 @@ namespace LensLooker.Data.Migrations
                     b.Property<int?>("BrandId")
                         .HasColumnType("int");
 
-                    b.Property<int>("LensFamilyId")
+                    b.Property<int?>("LensFamilyId")
                         .HasColumnType("int");
 
                     b.HasKey("Name");
@@ -239,9 +239,7 @@ namespace LensLooker.Data.Migrations
 
                     b.HasOne("LensLooker.Data.Models.LensFamily", "LensFamily")
                         .WithMany()
-                        .HasForeignKey("LensFamilyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("LensFamilyId");
 
                     b.Navigation("AliasOf");
 

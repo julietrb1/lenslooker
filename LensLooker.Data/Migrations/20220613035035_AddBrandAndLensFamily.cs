@@ -24,8 +24,7 @@ namespace LensLooker.Data.Migrations
                 name: "LensFamilyId",
                 table: "Lenses",
                 type: "int",
-                nullable: false,
-                defaultValue: 0);
+                nullable: true);
 
             migrationBuilder.AddColumn<int>(
                 name: "BrandId",
@@ -145,8 +144,7 @@ namespace LensLooker.Data.Migrations
                 table: "Lenses",
                 column: "LensFamilyId",
                 principalTable: "LensFamily",
-                principalColumn: "Id",
-                onDelete: ReferentialAction.Cascade);
+                principalColumn: "Id");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
