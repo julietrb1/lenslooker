@@ -40,7 +40,10 @@ IHost BuildHost()
             services
                 .AddOptions()
                 .AddDbContext<LensLookerContext>(builder =>
-                    builder.UseSqlServer(context.Configuration.GetConnectionString("LensLookerContext")))
+                    builder
+                        .UseLazyLoadingProxies()
+                        .UseSqlServer(context.Configuration.GetConnectionString("LensLookerContext"))
+                )
                 .Configure<FlickrOptions>(context.Configuration.GetRequiredSection(nameof(FlickrOptions)))
                 .AddTransient<IInvestigator, Investigator>();
 

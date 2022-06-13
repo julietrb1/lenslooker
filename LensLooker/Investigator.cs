@@ -7,6 +7,7 @@ using LensLooker.Api.Flickr.Client.Photos;
 using LensLooker.Api.Flickr.Client.Photos.Models;
 using LensLooker.Api.Flickr.Config;
 using LensLooker.Api.Flickr.Exceptions;
+using LensLooker.Api.Flickr.SharedInfo;
 using LensLooker.Data;
 using LensLooker.Data.Models;
 using Microsoft.EntityFrameworkCore;
@@ -88,7 +89,6 @@ public class Investigator : IInvestigator
 
         foreach (var lens in lensWithoutBrand)
         {
-            await _dbContext.Entry(lens).Collection(l => l.Photos).LoadAsync();
             var photoWithCamera = lens.Photos.FirstOrDefault(p => p.Camera != null);
             if (photoWithCamera == null)
             {
@@ -96,7 +96,6 @@ public class Investigator : IInvestigator
                 continue;
             }
 
-            await _dbContext.Entry(photoWithCamera).Reference(p => p.Camera).LoadAsync();
             _logger.LogWarning("Lens {Lens} has no brand (camera {Camera})", lens.Name,
                 photoWithCamera.Camera?.Name);
         }
@@ -104,7 +103,34 @@ public class Investigator : IInvestigator
         var lensWithoutFamily = await _dbContext.Lenses.Where(l => l.LensFamily == null).ToListAsync();
 
         foreach (var lens in lensWithoutFamily)
-            _logger.LogWarning("Lens {Lens} has no family", lens.Name);
+        {
+            var photoWithCamera = lens.Photos.FirstOrDefault(p => p.Camera != null);
+            if (photoWithCamera == null)
+            {
+                _logger.LogWarning("Lens {Lens} has no matching photo to infer family from camera", lens.Name);
+                continue;
+            }
+
+            await TryMatchCanonLensFamilies(lens, photoWithCamera);
+            await _dbContext.SaveChangesAsync();
+        }
+    }
+
+    private async Task TryMatchCanonLensFamilies(Lens lens, Photo photoWithCamera)
+    {
+        if (photoWithCamera.Camera!.Name != "Canon")
+            return;
+
+        foreach (var (regex, familyName) in PhotoInfo.CanonLensFamilyRegexes)
+        {
+            if (!regex.IsMatch(lens.Name)) continue;
+            var matchedFamily = await _dbContext.LensFamilies.SingleOrDefaultAsync(f => f.Name == familyName);
+            lens.LensFamily = matchedFamily;
+            _logger.LogInformation("Matched lens {Lens} to family {Family}", lens.Name, matchedFamily?.Name);
+            return;
+        }
+
+        _logger.LogWarning("Lens {Lens} unmatched to any family", lens.Name);
     }
 
     private async Task FetchPhotosWithTags()
@@ -179,7 +205,6 @@ public class Investigator : IInvestigator
             }
 
             _logger.LogInformation("Fetching photos for owners of lens '{}'", lensName);
-            await _dbContext.Entry(lens).Collection(l => l.Photos).LoadAsync();
 
             foreach (var ownerGroup in lens.Photos.GroupBy(p => p.OwnerId))
             {
