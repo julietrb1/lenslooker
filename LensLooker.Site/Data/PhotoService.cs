@@ -52,10 +52,13 @@ internal class PhotoService : IPhotoService
 
     private IEnumerable<IGrouping<string, Lens>> GetLensesFromDatabase()
     {
-        return _dbContext.Lenses
+        var lenses = _dbContext.Lenses
             .Where(l => l.LensFamily != null)
-            .GroupBy(l => $"{l.LensFamily!.CameraBrand.Name} {l.LensFamily.Name}")
+            .Include(l => l.LensFamily)
+            .ThenInclude(f => f!.CameraBrand)
             .ToList();
+
+        return lenses.GroupBy(l => $"{l.LensFamily!.CameraBrand.Name} {l.LensFamily.Name}");
     }
 
     private async Task<PhotosResult> GetPhotosFromDatabase(string? lensName, int pageNumber, int pageSize)
