@@ -99,6 +99,6 @@ internal class PhotoService : IPhotoService
 
     private static Expression<Func<Photo, bool>> LensPredicate(Lens? lens)
     {
-        return p => p.IsExifFetched && (lens == null || p.Lens == lens);
+        return p => p.IsExifFetched && p.Lens != null && p.Camera != null && (lens == null || p.Lens == lens);
     }
 }
