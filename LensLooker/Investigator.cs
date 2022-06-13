@@ -38,6 +38,8 @@ public class Investigator : IInvestigator
 
     public async Task Investigate()
     {
+        await OrganiseCamerasAndLenses();
+
         if (_options.TagsToFetch?.Any() == true) await FetchPhotosWithTags();
 
         if (_options.GroupsToFetch?.Any() == true) await FetchGroups();
@@ -57,6 +59,46 @@ public class Investigator : IInvestigator
             // Changes saved within, so no need to save changes on context here.
             await FetchPhotoExif();
         }
+    }
+
+    private async Task OrganiseCamerasAndLenses()
+    {
+        var brands = await _dbContext.Brands.ToListAsync();
+        var camerasWithoutBrand = await _dbContext.Cameras
+            .Where(c => c.Brand == null)
+            .ToListAsync();
+
+        foreach (var camera in camerasWithoutBrand)
+        {
+            var matchingBrand =
+                brands.SingleOrDefault(b => camera.Name.ToLowerInvariant().StartsWith(b.Name.ToLowerInvariant()));
+            if (matchingBrand == null) return;
+            _logger.LogInformation("Assigning camera {Camera} to brand {Brand}", camera.Name, matchingBrand.Name);
+            camera.Brand = matchingBrand;
+        }
+
+        await _dbContext.SaveChangesAsync();
+
+        var lensWithoutBrand = await _dbContext.Lenses.Where(l => l.Brand == null).ToListAsync();
+
+        foreach (var lens in lensWithoutBrand)
+        {
+            var photoWithCamera = lens.Photos.FirstOrDefault(p => p.Camera != null);
+            if (photoWithCamera == null)
+            {
+                _logger.LogWarning("Lens {Lens} has no matching photo to infer brand from camera", lens.Name);
+                continue;
+            }
+
+            await _dbContext.Entry(photoWithCamera).Reference(p => p.Camera).LoadAsync();
+            _logger.LogWarning("Lens {Lens} has no brand (camera {Camera})", lens.Name,
+                photoWithCamera.Camera?.Name);
+        }
+
+        var lensWithoutFamily = await _dbContext.Lenses.Where(l => l.LensFamily == null).ToListAsync();
+
+        foreach (var lens in lensWithoutFamily)
+            _logger.LogWarning("Lens {Lens} has no family", lens.Name);
     }
 
     private async Task FetchPhotosWithTags()
