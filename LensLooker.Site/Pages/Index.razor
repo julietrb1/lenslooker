@@ -1,5 +1,6 @@
 ﻿@page "/"
 @using LensLooker.Site.Data
+@using LensLooker.Data.Models
 
 <PageTitle>@LensName</PageTitle>
 @inject IPhotoService PhotoService
@@ -116,7 +117,7 @@
 
     private IEnumerable<PhotoViewModel>? FilteredPhotos { get; set; }
 
-    private Dictionary<string, IOrderedEnumerable<LensViewModel>>? LensGroups { get; set; }
+    private IEnumerable<IGrouping<LensFamily, Lens>>? LensGroups { get; set; }
 
     private int _pageNumber = 1;
     private int _pageSize = ValidPageSizes.First();

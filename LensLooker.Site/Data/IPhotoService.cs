@@ -1,7 +1,9 @@
+using LensLooker.Data.Models;
+
 namespace LensLooker.Site.Data;
 
 internal interface IPhotoService
 {
-    Dictionary<string, IOrderedEnumerable<LensViewModel>> GetLenses();
+    IEnumerable<IGrouping<LensFamily, Lens>> GetLenses();
     Task<PhotosResult> GetPhotos(string? lensName, int pageNumber, int pageSize);
 }

@@ -1,4 +1,4 @@
-@using LensLooker.Site.Data
+@using LensLooker.Data.Models
 <label>
     Lens
     <select class="form-select form-select-sm" onchange="@OnLensChange">
@@ -7,12 +7,12 @@
         </optgroup>
         @if (LensGroups != null)
         {
-            @foreach (var (groupName, groupMembers) in LensGroups)
+            @foreach (var group in LensGroups)
             {
-                <optgroup label="@groupName">
-                    @foreach (var lens in groupMembers)
+                <optgroup label="@group.Key.Name">
+                    @foreach (var lens in group)
                     {
-                        <option value="@lens.Name">(@lens.PhotoCount.ToString("N0")) @lens.Name</option>
+                        <option value="@lens.Name">(@lens.Photos.Count.ToString("N0")) @lens.Name</option>
                     }
                 </optgroup>
             }
@@ -24,7 +24,7 @@
 
     [Parameter]
     [EditorRequired]
-    public Dictionary<string, IOrderedEnumerable<LensViewModel>>? LensGroups { get; set; }
+    public IEnumerable<IGrouping<LensFamily, Lens>>? LensGroups { get; set; }
 
     [Parameter]
     [EditorRequired]

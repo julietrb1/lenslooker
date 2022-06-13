@@ -30,7 +30,7 @@
 
     [Parameter]
     [EditorRequired]
-    public IList<int> ValidPageSizes { get; set; }
+    public IList<int> ValidPageSizes { get; set; } = new List<int>();
 
     private int _pageSize;
 }

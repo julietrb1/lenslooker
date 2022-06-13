@@ -1,6 +1,4 @@
 using System.Linq.Expressions;
-using System.Text.RegularExpressions;
-using LensLooker.Api.Flickr.SharedInfo;
 using LensLooker.Data;
 using LensLooker.Data.Models;
 using LensLooker.Site.Caching;
@@ -14,15 +12,6 @@ namespace LensLooker.Site.Data;
 internal class PhotoService : IPhotoService
 {
     private readonly LensLookerContext _dbContext;
-
-    private readonly Dictionary<string, Regex> _lensRegexPairs = new()
-    {
-        ["Canon EF"] = PhotoInfo.CanonEfLensRegex,
-        ["Canon RF"] = PhotoInfo.CanonRfLensRegex,
-        ["Sony DT"] = PhotoInfo.SonyDtLensRegex,
-        ["Sony FE"] = PhotoInfo.SonyFeLensRegex
-    };
-
     private readonly IMemoryCache _memoryCache;
     private readonly SiteOptions _options;
 
@@ -39,7 +28,7 @@ internal class PhotoService : IPhotoService
              !string.IsNullOrWhiteSpace(p.Secret) &&
              !string.IsNullOrWhiteSpace(p.OwnerId);
 
-    public Dictionary<string, IOrderedEnumerable<LensViewModel>> GetLenses()
+    public IEnumerable<IGrouping<LensFamily, Lens>> GetLenses()
     {
         return _memoryCache.GetOrCreate(
             CacheKeys.LensesKey,
@@ -61,16 +50,16 @@ internal class PhotoService : IPhotoService
             });
     }
 
-    private Dictionary<string, IOrderedEnumerable<LensViewModel>> GetLensesFromDatabase()
+    private IEnumerable<IGrouping<LensFamily, Lens>> GetLensesFromDatabase()
     {
         var lensList = _dbContext.Lenses
             .Include(e => e.Photos)
+            .Include(e => e.LensFamily)
             .ToList();
-        return _lensRegexPairs.ToDictionary(p => p.Key, p => lensList
-            .Where(l => p.Value.IsMatch(l.Name))
-            .Select(l => l.ToViewModel())
-            .Where(vm => vm.PhotoCount > 0)
-            .OrderByDescending(vm => vm.PhotoCount));
+        return lensList
+            .Where(l => l.LensFamily is not null)
+            .GroupBy(l => l.LensFamily)
+            .Where(l => l.Key is not null)!;
     }
 
     private async Task<PhotosResult> GetPhotosFromDatabase(string? lensName, int pageNumber, int pageSize)
