@@ -56,6 +56,7 @@ internal class PhotoService : IPhotoService
             .Where(l => l.LensFamily != null)
             .Include(l => l.LensFamily)
             .ThenInclude(f => f!.CameraBrand)
+            .Include(l => l.Photos)
             .ToList();
 
         return lenses.GroupBy(l => $"{l.LensFamily!.CameraBrand.Name} {l.LensFamily.Name}");
