@@ -119,7 +119,10 @@ public class Investigator : IInvestigator
     private async Task TryMatchCanonLensFamilies(Lens lens, Photo photoWithCamera)
     {
         if (photoWithCamera.Camera!.Name != "Canon")
+        {
+            _logger.LogWarning("Lens {Lens} isn't from a Canon camera", lens.Name);
             return;
+        }
 
         foreach (var (regex, familyName) in PhotoInfo.CanonLensFamilyRegexes)
         {
