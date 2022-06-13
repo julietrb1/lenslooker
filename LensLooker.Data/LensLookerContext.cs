@@ -17,28 +17,43 @@ public class LensLookerContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        var canonBrand = new Brand { Id = 1, Name = "Canon" };
-
         // Brands
+        var canonBrand = new Brand { Id = 1, Name = "Canon" };
+        var sonyBrand = new Brand { Id = 3, Name = "Sony" };
+
         modelBuilder.Entity<Brand>().HasData(
             canonBrand,
             new Brand { Id = 2, Name = "Nikon" },
-            new Brand { Id = 3, Name = "Sony" },
+            sonyBrand,
             new Brand { Id = 4, Name = "Leica" },
             new Brand { Id = 5, Name = "Apple" },
             new Brand { Id = 6, Name = "Pentax" }
         );
 
         // Canon Lens families
-        modelBuilder.Entity<LensFamily>().HasData(new
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
             { Id = 1, Name = "EF", CameraBrandId = canonBrand.Id, SensorFormat = SensorFormat.FullFrame });
-        modelBuilder.Entity<LensFamily>().HasData(new
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
             { Id = 2, Name = "EF L", CameraBrandId = canonBrand.Id, SensorFormat = SensorFormat.FullFrame });
-        modelBuilder.Entity<LensFamily>().HasData(new
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
             { Id = 3, Name = "EF-S", CameraBrandId = canonBrand.Id, SensorFormat = SensorFormat.Crop });
-        modelBuilder.Entity<LensFamily>().HasData(new
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
             { Id = 4, Name = "RF", CameraBrandId = canonBrand.Id, SensorFormat = SensorFormat.FullFrame });
-        modelBuilder.Entity<LensFamily>().HasData(new
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
             { Id = 5, Name = "RF L", CameraBrandId = canonBrand.Id, SensorFormat = SensorFormat.FullFrame });
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
+            { Id = 6, Name = "DT", CameraBrandId = sonyBrand.Id, SensorFormat = SensorFormat.Crop });
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
+            { Id = 7, Name = "DT G", CameraBrandId = sonyBrand.Id, SensorFormat = SensorFormat.Crop });
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
+            { Id = 8, Name = "DT ZA", CameraBrandId = sonyBrand.Id, SensorFormat = SensorFormat.Crop });
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
+            { Id = 9, Name = "E", CameraBrandId = sonyBrand.Id, SensorFormat = SensorFormat.Crop });
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
+            { Id = 10, Name = "FE", CameraBrandId = sonyBrand.Id, SensorFormat = SensorFormat.FullFrame });
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
+            { Id = 11, Name = "FE G", CameraBrandId = sonyBrand.Id, SensorFormat = SensorFormat.FullFrame });
+        modelBuilder.Entity<LensFamily>().HasData(new LensFamily
+            { Id = 12, Name = "FE ZA", CameraBrandId = sonyBrand.Id, SensorFormat = SensorFormat.FullFrame });
     }
 }

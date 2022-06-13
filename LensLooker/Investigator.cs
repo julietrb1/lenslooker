@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using LensLooker.Api.Flickr.Client.Common;
 using LensLooker.Api.Flickr.Client.GroupsPools;
 using LensLooker.Api.Flickr.Client.GroupsPools.Models;
@@ -100,9 +101,7 @@ public class Investigator : IInvestigator
                 photoWithCamera.Camera?.Name);
         }
 
-        var lensWithoutFamily = await _dbContext.Lenses.Where(l => l.LensFamily == null).ToListAsync();
-
-        foreach (var lens in lensWithoutFamily)
+        foreach (var lens in _dbContext.Lenses)
         {
             var photoWithCamera = lens.Photos.FirstOrDefault(p => p.Camera != null);
             if (photoWithCamera == null)
@@ -111,7 +110,8 @@ public class Investigator : IInvestigator
                 continue;
             }
 
-            if (!await TryMatchCanonLensFamilies(lens, photoWithCamera))
+            if (!await TryMatchCanonLensFamilies(lens, photoWithCamera) &&
+                !await TryMatchSonyLensFamilies(lens, photoWithCamera))
                 _logger.LogWarning("Lens {Lens} family unmatched (from {CameraBrand} camera)", lens.Name,
                     photoWithCamera.Camera!.Brand?.Name);
         }
@@ -121,10 +121,21 @@ public class Investigator : IInvestigator
 
     private async Task<bool> TryMatchCanonLensFamilies(Lens lens, Photo photoWithCamera)
     {
-        if (photoWithCamera.Camera!.Brand?.Name != "Canon")
+        return await TryMatchLensFamilies(lens, photoWithCamera, PhotoInfo.CanonLensFamilyRegexes, "Canon");
+    }
+
+    private async Task<bool> TryMatchSonyLensFamilies(Lens lens, Photo photoWithCamera)
+    {
+        return await TryMatchLensFamilies(lens, photoWithCamera, PhotoInfo.SonyLensFamilyRegexes, "Sony");
+    }
+
+    private async Task<bool> TryMatchLensFamilies(Lens lens, Photo photoWithCamera,
+        Dictionary<Regex, string> canonLensFamilyRegexes, string brandName)
+    {
+        if (photoWithCamera.Camera!.Brand?.Name != brandName)
             return false;
 
-        foreach (var (regex, familyName) in PhotoInfo.CanonLensFamilyRegexes)
+        foreach (var (regex, familyName) in canonLensFamilyRegexes)
         {
             if (!regex.IsMatch(lens.Name)) continue;
             var matchedFamily = await _dbContext.LensFamilies.SingleOrDefaultAsync(f => f.Name == familyName);
