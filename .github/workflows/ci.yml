@@ -31,7 +31,6 @@ jobs:
       - name: Build and push Investigator
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: .
           file: LensLooker/Dockerfile
           push: true
           tags: ghcr.io/${{ github.actor }}/lenslooker-investigator:latest
@@ -53,7 +52,6 @@ jobs:
       - name: Build and push Investigator
         uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
         with:
-          context: .
           file: LensLooker.Site/Dockerfile
           push: true
           tags: ghcr.io/${{ github.actor }}/lenslooker-site:latest
