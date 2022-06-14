@@ -297,7 +297,7 @@ public class Investigator : IInvestigator
                       {
                           Name = fetchedCamera,
                           Brand = await _dbContext.Brands.FirstOrDefaultAsync(b =>
-                              fetchedCamera.ToLowerInvariant().StartsWith(b.Name.ToLowerInvariant()))
+                              fetchedCamera.ToLower().StartsWith(b.Name.ToLower()))
                       }
                     : null;
                 photo.Camera = camera;
