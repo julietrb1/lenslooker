@@ -58,7 +58,8 @@
 
     private void OnLensChange(ChangeEventArgs e)
     {
-        Lens = LensGroups?.SelectMany(l => l).SingleOrDefault(l => l.Id == e.Value as int?);
+        int.TryParse(e.Value as string, out var parsedLensId);
+        Lens = parsedLensId > 0 ? LensGroups?.SelectMany(l => l).SingleOrDefault(l => l.Id == parsedLensId) : null;
         PageNumber = 1;
         Task.Run(LoadPhotos).Wait();
     }
