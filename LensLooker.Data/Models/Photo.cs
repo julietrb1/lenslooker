@@ -22,11 +22,11 @@ public class Photo
     public int? FocalLengthInMm { get; set; }
 
     [ForeignKey("Camera")] public string? CameraName { get; set; }
-
+    public int? TempCameraId { get; set; }
     public virtual Camera? Camera { get; set; }
 
     [ForeignKey("Lens")] public string? LensName { get; set; }
-
+    public int? TempLensId { get; set; }
     public virtual Lens? Lens { get; set; }
     public DateTime? DateTimeShot { get; set; }
 }
