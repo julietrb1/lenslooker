@@ -74,7 +74,7 @@ public class Investigator : IInvestigator
         foreach (var camera in camerasWithoutBrand)
         {
             var matchingBrand =
-                brands.SingleOrDefault(b => camera.Name.ToLowerInvariant().StartsWith(b.Name.ToLowerInvariant()));
+                brands.SingleOrDefault(b => camera.Name.ToLower().StartsWith(b.Name.ToLower()));
             if (matchingBrand == null)
             {
                 _logger.LogWarning("No brand found to assign to camera {Camera}", camera.Name);
