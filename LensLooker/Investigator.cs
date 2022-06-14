@@ -311,12 +311,23 @@ public class Investigator : IInvestigator
                     continue;
                 }
 
+                var fetchedCamera = fetchedPhoto.Photo.Camera;
+                var camera = !string.IsNullOrWhiteSpace(fetchedCamera)
+                    ? await _dbContext.Cameras.FirstOrDefaultAsync(c => c.Name == fetchedCamera) ??
+                      new Camera
+                      {
+                          Name = fetchedCamera,
+                          Brand = await _dbContext.Brands.FirstOrDefaultAsync(b => fetchedCamera.StartsWith(b.Name))
+                      }
+                    : null;
+                photo.Camera = camera;
+
                 var fetchedLens = fetchedPhoto.Photo.Exif.FirstOrDefault(e => e.Tag == "LensModel")?.Raw.Content
                     .ToString();
-                var lens = string.IsNullOrWhiteSpace(fetchedLens)
-                    ? null
-                    : await _dbContext.Lenses.FindAsync(fetchedLens) ??
-                      new Lens { Name = fetchedLens };
+                var lens = !string.IsNullOrWhiteSpace(fetchedLens)
+                    ? await _dbContext.Lenses.FirstOrDefaultAsync(l => l.Name == fetchedLens) ??
+                      new Lens { Name = fetchedLens }
+                    : null;
                 photo.Lens = lens;
 
                 if (_options.OwnerDeleteThreshold.HasValue && photo.Lens == null)
@@ -342,13 +353,6 @@ public class Investigator : IInvestigator
                 DateTime? parsedDate =
                     rawDate == null ? null : DateTime.ParseExact(rawDate, "yyyy:MM:dd HH:mm:ss", null);
                 photo.DateTimeShot = parsedDate;
-
-                var fetchedCamera = fetchedPhoto.Photo.Camera;
-                var camera = string.IsNullOrWhiteSpace(fetchedCamera)
-                    ? null
-                    : await _dbContext.Cameras.FindAsync(fetchedCamera) ??
-                      new Camera { Name = fetchedCamera };
-                photo.Camera = camera;
 
                 var focalLengthNode = fetchedPhoto.Photo.Exif.FirstOrDefault(e => e.Tag == "FocalLength");
                 var fetchedFocalLength =
