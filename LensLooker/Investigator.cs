@@ -86,21 +86,6 @@ public class Investigator : IInvestigator
 
         await _dbContext.SaveChangesAsync();
 
-        var lensWithoutBrand = await _dbContext.Lenses.Where(l => l.Brand == null).ToListAsync();
-
-        foreach (var lens in lensWithoutBrand)
-        {
-            var photoWithCamera = lens.Photos.FirstOrDefault(p => p.Camera != null);
-            if (photoWithCamera == null)
-            {
-                _logger.LogWarning("Lens {Lens} has no matching photo to infer brand from camera", lens.Name);
-                continue;
-            }
-
-            _logger.LogWarning("Lens {Lens} has no brand (camera {Camera})", lens.Name,
-                photoWithCamera.Camera?.Name);
-        }
-
         foreach (var lens in await _dbContext.Lenses.ToListAsync())
         {
             var photoWithCamera = lens.Photos.FirstOrDefault(p => p.Camera != null);

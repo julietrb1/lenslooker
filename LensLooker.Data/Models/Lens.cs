@@ -7,8 +7,6 @@ public class Lens
 {
     [Key] public string Name { get; set; }
     public virtual List<Photo> Photos { get; set; }
-    public int? BrandId { get; set; }
-    public virtual Brand? Brand { get; set; }
     public int? LensFamilyId { get; set; }
     public virtual LensFamily? LensFamily { get; set; }
 
