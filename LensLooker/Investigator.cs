@@ -97,11 +97,19 @@ public class Investigator : IInvestigator
                 continue;
             }
 
-            if (await _lensService.TryMatchLensFamilies(lens, photoWithCamera)) continue;
+            var cameraBrandName = photoWithCamera.Camera!.Brand?.Name;
+            lens.LensFamily = cameraBrandName != null
+                ? await _lensService.MatchLensFamily(lens.Name, cameraBrandName)
+                : null;
+            if (lens.LensFamily != null)
+            {
+                _logger.LogInformation("Matched Lens {Lens} to family {Family}", lens.Name, lens.LensFamily.Name);
+                continue;
+            }
 
             _logger.LogWarning("Lens {Lens} family unmatched (from {CameraBrand} camera)", lens.Name,
-                photoWithCamera.Camera!.Brand?.Name);
-            lens.LensFamilyId = null;
+                cameraBrandName);
+            lens.LensFamily = null;
         }
 
         await _dbContext.SaveChangesAsync();
@@ -288,16 +296,23 @@ public class Investigator : IInvestigator
                       new Camera
                       {
                           Name = fetchedCamera,
-                          Brand = await _dbContext.Brands.FirstOrDefaultAsync(b => fetchedCamera.StartsWith(b.Name))
+                          Brand = await _dbContext.Brands.FirstOrDefaultAsync(b =>
+                              fetchedCamera.ToLowerInvariant().StartsWith(b.Name.ToLowerInvariant()))
                       }
                     : null;
                 photo.Camera = camera;
 
                 var fetchedLens = fetchedPhoto.Photo.Exif.FirstOrDefault(e => e.Tag == "LensModel")?.Raw.Content
                     .ToString();
-                var lens = !string.IsNullOrWhiteSpace(fetchedLens)
+                var lens = !string.IsNullOrWhiteSpace(camera?.Brand?.Name) && !string.IsNullOrWhiteSpace(fetchedLens)
                     ? await _dbContext.Lenses.FirstOrDefaultAsync(l => l.Name == fetchedLens) ??
-                      new Lens { Name = fetchedLens }
+                      new Lens
+                      {
+                          Name = fetchedLens,
+                          LensFamily = camera.Brand != null
+                              ? await _lensService.MatchLensFamily(fetchedLens, camera.Brand.Name)
+                              : null
+                      }
                     : null;
                 photo.Lens = lens;
 

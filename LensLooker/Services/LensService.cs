@@ -18,29 +18,31 @@ public class LensService : ILensService
         _logger = logger;
     }
 
-    public async Task<bool> TryMatchLensFamilies(Lens lens, Photo photoWithCamera)
+    public async Task<LensFamily?> MatchLensFamily(string lensName, string cameraBrandName)
     {
-        var regexes = GetRegexes(photoWithCamera);
+        var regexes = GetRegexes(cameraBrandName);
         if (regexes is null)
-            return false;
+            return null;
 
         foreach (var (regex, familyName) in regexes)
         {
-            if (!regex.IsMatch(lens.Name)) continue;
+            if (!regex.IsMatch(lensName)) continue;
             var matchedFamily = await _dbContext.LensFamilies.SingleOrDefaultAsync(f => f.Name == familyName);
-            lens.LensFamily = matchedFamily;
             if (matchedFamily != null)
-                _logger.LogInformation("Matched lens {Lens} to family {Family}", lens.Name, matchedFamily.Name);
+            {
+                _logger.LogInformation("Matched lens {Lens} to family {Family}", lensName, matchedFamily.Name);
+                return matchedFamily;
+            }
 
-            return matchedFamily != null;
+            return null;
         }
 
-        return false;
+        return null;
     }
 
-    private static Dictionary<Regex, string>? GetRegexes(Photo photoWithCamera)
+    private static Dictionary<Regex, string>? GetRegexes(string cameraBrandName)
     {
-        switch (photoWithCamera.Camera!.Brand?.Name)
+        switch (cameraBrandName)
         {
             case "Canon":
                 return PhotoInfo.CanonLensFamilyRegexes;

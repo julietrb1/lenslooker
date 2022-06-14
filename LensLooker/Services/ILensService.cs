@@ -4,5 +4,5 @@ namespace LensLooker.Services;
 
 public interface ILensService
 {
-    Task<bool> TryMatchLensFamilies(Lens lens, Photo photoWithCamera);
+    Task<LensFamily?> MatchLensFamily(string lensName, string cameraBrandName);
 }
