@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace LensLooker.Data.Models;
 
+[Index(nameof(Name), nameof(LensFamilyId), IsUnique = true)]
 public class Lens
 {
     [Key] public string Name { get; set; }
