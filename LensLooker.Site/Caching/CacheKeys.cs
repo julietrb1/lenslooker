@@ -5,8 +5,8 @@ public static class CacheKeys
     private const string PhotosKey = "photos";
     public const string LensesKey = "lenses";
 
-    public static string BuildPhotosCacheKey(string? lensName, int pageNumber, int pageSize)
+    public static string BuildPhotosCacheKey(int? lensId, int pageNumber, int pageSize)
     {
-        return $"{PhotosKey}::{lensName}::{pageNumber}::{pageSize}";
+        return $"{PhotosKey}::{lensId}::{pageNumber}::{pageSize}";
     }
 }

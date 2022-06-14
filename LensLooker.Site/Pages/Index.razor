@@ -2,11 +2,11 @@
 @using LensLooker.Site.Data
 @using LensLooker.Data.Models
 
-<PageTitle>@LensName</PageTitle>
+<PageTitle>@Lens?.Name ?? "All lenses"</PageTitle>
 @inject IPhotoService PhotoService
 <div tabindex="0" @ref="_container" @onkeydown="OnKeyPress" id="container">
     <h1>Lens Looker</h1>
-    <h2 class="text-muted h4 mb-4">@(LensName ?? "All lenses") &bull; Page @PageNumber.ToString("N0") of @PageCount.ToString("N0")</h2>
+    <h2 class="text-muted h4 mb-4">@(Lens?.Name ?? "All lenses") &bull; Page @PageNumber.ToString("N0") of @PageCount.ToString("N0")</h2>
 
     <p class="small">Press <code>j</code>/<code>l</code> for previous/next page.</p>
 
@@ -58,7 +58,7 @@
 
     private void OnLensChange(ChangeEventArgs e)
     {
-        LensName = e.Value as string;
+        Lens = LensGroups?.SelectMany(l => l).SingleOrDefault(l => l.Id == e.Value as int?);
         PageNumber = 1;
         Task.Run(LoadPhotos).Wait();
     }
@@ -70,11 +70,6 @@
     }
 
     ElementReference _container;
-
-
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public string? LensName { get; set; }
 
     [Parameter]
     [SupplyParameterFromQuery]
@@ -100,6 +95,8 @@
 
     private int TotalPhotoCount { get; set; }
 
+    private Lens? Lens { get; set; }
+
     private int PageCount => TotalPhotoCount != 0 ? (int)Math.Max(1, Math.Ceiling(TotalPhotoCount / (double)PageSize)) : 1;
 
     protected override async Task OnInitializedAsync()
@@ -112,7 +109,7 @@
     {
         PageNumberString = PageNumber.ToString();
         FilteredPhotos = null;
-        (TotalPhotoCount, FilteredPhotos) = await PhotoService.GetPhotos(LensName, PageNumber, PageSize);
+        (TotalPhotoCount, FilteredPhotos) = await PhotoService.GetPhotos(Lens?.Id, PageNumber, PageSize);
     }
 
     private IEnumerable<PhotoViewModel>? FilteredPhotos { get; set; }

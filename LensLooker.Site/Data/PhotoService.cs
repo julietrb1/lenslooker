@@ -39,14 +39,14 @@ internal class PhotoService : IPhotoService
             });
     }
 
-    public async Task<PhotosResult> GetPhotos(string? lensName, int pageNumber, int pageSize)
+    public async Task<PhotosResult> GetPhotos(int? lensId, int pageNumber, int pageSize)
     {
         return await _memoryCache.GetOrCreateAsync(
-            CacheKeys.BuildPhotosCacheKey(lensName, pageNumber, pageSize),
+            CacheKeys.BuildPhotosCacheKey(lensId, pageNumber, pageSize),
             async cacheEntry =>
             {
                 cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.PhotoCacheExpirationMinutes);
-                return await GetPhotosFromDatabase(lensName, pageNumber, pageSize);
+                return await GetPhotosFromDatabase(lensId, pageNumber, pageSize);
             });
     }
 
@@ -65,9 +65,9 @@ internal class PhotoService : IPhotoService
             .OrderBy(g => g.Key);
     }
 
-    private async Task<PhotosResult> GetPhotosFromDatabase(string? lensName, int pageNumber, int pageSize)
+    private async Task<PhotosResult> GetPhotosFromDatabase(int? lensId, int pageNumber, int pageSize)
     {
-        var lens = await _dbContext.Lenses.FindAsync(lensName);
+        var lens = await _dbContext.Lenses.FindAsync(lensId);
         var photos = await _dbContext
             .Photos
             .Where(LensPredicate(lens))
