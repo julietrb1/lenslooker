@@ -143,8 +143,10 @@ public class Investigator : IInvestigator
             if (!regex.IsMatch(lens.Name)) continue;
             var matchedFamily = await _dbContext.LensFamilies.SingleOrDefaultAsync(f => f.Name == familyName);
             lens.LensFamily = matchedFamily;
-            _logger.LogInformation("Matched lens {Lens} to family {Family}", lens.Name, matchedFamily?.Name);
-            return true;
+            if (matchedFamily != null)
+                _logger.LogInformation("Matched lens {Lens} to family {Family}", lens.Name, matchedFamily?.Name);
+
+            return matchedFamily != null;
         }
 
         return false;
