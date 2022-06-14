@@ -4,6 +4,7 @@ using LensLooker.Api.Flickr.Client.People;
 using LensLooker.Api.Flickr.Client.Photos;
 using LensLooker.Api.Flickr.Config;
 using LensLooker.Data;
+using LensLooker.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -45,7 +46,8 @@ IHost BuildHost()
                         .UseSqlServer(context.Configuration.GetConnectionString("LensLookerContext"))
                 )
                 .Configure<FlickrOptions>(context.Configuration.GetRequiredSection(nameof(FlickrOptions)))
-                .AddTransient<IInvestigator, Investigator>();
+                .AddTransient<IInvestigator, Investigator>()
+                .AddTransient<ILensService, LensService>();
 
             services
                 .AddHttpClient<IPhotosClient, PhotosClient>()

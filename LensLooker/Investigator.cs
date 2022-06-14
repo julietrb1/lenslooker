@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using LensLooker.Api.Flickr.Client.Common;
 using LensLooker.Api.Flickr.Client.GroupsPools;
 using LensLooker.Api.Flickr.Client.GroupsPools.Models;
@@ -8,9 +7,9 @@ using LensLooker.Api.Flickr.Client.Photos;
 using LensLooker.Api.Flickr.Client.Photos.Models;
 using LensLooker.Api.Flickr.Config;
 using LensLooker.Api.Flickr.Exceptions;
-using LensLooker.Api.Flickr.SharedInfo;
 using LensLooker.Data;
 using LensLooker.Data.Models;
+using LensLooker.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,6 +20,7 @@ public class Investigator : IInvestigator
 {
     private readonly LensLookerContext _dbContext;
     private readonly IGroupsPoolsClient _groupsPoolsClient;
+    private readonly ILensService _lensService;
     private readonly ILogger<Investigator> _logger;
     private readonly FlickrOptions _options;
     private readonly IPeopleClient _peopleClient;
@@ -28,13 +28,14 @@ public class Investigator : IInvestigator
 
     public Investigator(IPhotosClient photosClient, IPeopleClient peopleClient, IGroupsPoolsClient groupsPoolsClient,
         ILogger<Investigator> logger,
-        LensLookerContext dbContext, IOptions<FlickrOptions> options)
+        LensLookerContext dbContext, IOptions<FlickrOptions> options, ILensService lensService)
     {
         _photosClient = photosClient;
         _peopleClient = peopleClient;
         _groupsPoolsClient = groupsPoolsClient;
         _logger = logger;
         _dbContext = dbContext;
+        _lensService = lensService;
         _options = options.Value;
     }
 
@@ -96,8 +97,7 @@ public class Investigator : IInvestigator
                 continue;
             }
 
-            if (await TryMatchCanonLensFamilies(lens, photoWithCamera) ||
-                await TryMatchSonyLensFamilies(lens, photoWithCamera)) continue;
+            if (await _lensService.TryMatchLensFamilies(lens, photoWithCamera)) continue;
 
             _logger.LogWarning("Lens {Lens} family unmatched (from {CameraBrand} camera)", lens.Name,
                 photoWithCamera.Camera!.Brand?.Name);
@@ -107,35 +107,6 @@ public class Investigator : IInvestigator
         await _dbContext.SaveChangesAsync();
     }
 
-    private async Task<bool> TryMatchCanonLensFamilies(Lens lens, Photo photoWithCamera)
-    {
-        return await TryMatchLensFamilies(lens, photoWithCamera, PhotoInfo.CanonLensFamilyRegexes, "Canon");
-    }
-
-    private async Task<bool> TryMatchSonyLensFamilies(Lens lens, Photo photoWithCamera)
-    {
-        return await TryMatchLensFamilies(lens, photoWithCamera, PhotoInfo.SonyLensFamilyRegexes, "Sony");
-    }
-
-    private async Task<bool> TryMatchLensFamilies(Lens lens, Photo photoWithCamera,
-        Dictionary<Regex, string> canonLensFamilyRegexes, string brandName)
-    {
-        if (photoWithCamera.Camera!.Brand?.Name != brandName)
-            return false;
-
-        foreach (var (regex, familyName) in canonLensFamilyRegexes)
-        {
-            if (!regex.IsMatch(lens.Name)) continue;
-            var matchedFamily = await _dbContext.LensFamilies.SingleOrDefaultAsync(f => f.Name == familyName);
-            lens.LensFamily = matchedFamily;
-            if (matchedFamily != null)
-                _logger.LogInformation("Matched lens {Lens} to family {Family}", lens.Name, matchedFamily?.Name);
-
-            return matchedFamily != null;
-        }
-
-        return false;
-    }
 
     private async Task FetchPhotosWithTags()
     {
