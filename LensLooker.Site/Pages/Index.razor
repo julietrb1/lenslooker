@@ -2,11 +2,11 @@
 @using LensLooker.Site.Data
 @using LensLooker.Data.Models
 
-<PageTitle>@Lens?.Name ?? "All lenses"</PageTitle>
+<PageTitle>@(LensDisplayName)&mdash;Lens Looker</PageTitle>
 @inject IPhotoService PhotoService
 <div tabindex="0" @ref="_container" @onkeydown="OnKeyPress" id="container">
     <h1>Lens Looker</h1>
-    <h2 class="text-muted h4 mb-4">@(Lens?.Name ?? "All lenses") &bull; Page @PageNumber.ToString("N0") of @PageCount.ToString("N0")</h2>
+    <h2 class="text-muted h4 mb-4">@(LensDisplayName) &bull; Page @PageNumber.ToString("N0") of @PageCount.ToString("N0")</h2>
 
     <p class="small">Press <code>j</code>/<code>l</code> for previous/next page.</p>
 
@@ -54,6 +54,7 @@
 </div>
 
 @code {
+    private string LensDisplayName => Lens?.Name ?? "All lenses";
     private static readonly int[] ValidPageSizes = { 25, 50, 100 };
 
     private void OnLensChange(ChangeEventArgs e)
