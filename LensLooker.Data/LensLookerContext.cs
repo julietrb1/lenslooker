@@ -17,6 +17,10 @@ public class LensLookerContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<Photo>()
+            .HasIndex(p => new { p.PhotoId, p.LensId, p.IsExifFetched })
+            .IncludeProperties(p => p.CameraId);
+
         // Brands
         var canonBrand = new Brand { Id = 1, Name = "Canon" };
         var sonyBrand = new Brand { Id = 3, Name = "Sony" };
