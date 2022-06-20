@@ -65,7 +65,7 @@ internal class PhotoService : IPhotoService
         var photos = await _dbContext
             .Photos
             .Where(LensPredicate(lens))
-            .OrderBy(p => p.Server)
+            .OrderBy(p => p.PhotoId)
             .Include(e => e.Camera)
             .Include(e => e.Lens)
             .AsNoTracking()
