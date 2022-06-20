@@ -22,12 +22,6 @@ internal class PhotoService : IPhotoService
         _options = options.Value;
     }
 
-    // TODO: This should really use `canConstructUrl` from the `Photo` model, but that causes LINQ errors. Sad.
-    private static Expression<Func<Photo, bool>> UrlInfoPredicate =>
-        p => !string.IsNullOrWhiteSpace(p.Server) &&
-             !string.IsNullOrWhiteSpace(p.Secret) &&
-             !string.IsNullOrWhiteSpace(p.OwnerId);
-
     public IEnumerable<IGrouping<string, Lens>> GetLenses()
     {
         return _memoryCache.GetOrCreate(
@@ -71,7 +65,6 @@ internal class PhotoService : IPhotoService
         var photos = await _dbContext
             .Photos
             .Where(LensPredicate(lens))
-            .Where(UrlInfoPredicate)
             .OrderBy(p => p.PhotoId)
             .Include(e => e.Camera)
             .Include(e => e.Lens)
