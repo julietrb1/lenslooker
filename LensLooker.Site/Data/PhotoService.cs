@@ -53,7 +53,7 @@ internal class PhotoService : IPhotoService
     private IEnumerable<IGrouping<string, Lens>> GetLensesFromDatabase()
     {
         var lenses = _dbContext.Lenses
-            .Where(l => l.LensFamily != null)
+            .Where(l => l.LensFamilyId.HasValue)
             .Include(l => l.LensFamily)
             .ThenInclude(f => f!.CameraBrand)
             .Include(l => l.Photos)
@@ -91,6 +91,7 @@ internal class PhotoService : IPhotoService
 
     private static Expression<Func<Photo, bool>> LensPredicate(Lens? lens)
     {
-        return p => p.IsExifFetched && p.Lens != null && p.Camera != null && (lens == null || p.Lens == lens);
+        return p => p.IsExifFetched && p.LensId.HasValue && p.CameraId.HasValue &&
+                    (lens == null || p.LensId == lens.Id);
     }
 }
