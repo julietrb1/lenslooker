@@ -37,11 +37,6 @@ public static class ModelExtensions
             photo.ExposureTime);
     }
 
-    public static LensViewModel ToViewModel(this Lens lens)
-    {
-        return new LensViewModel(lens.Name, lens.Photos.Count(e => e.CanConstructUrl));
-    }
-
     private static string ToPhotoSuffix(PhotoSize size)
     {
         return size switch
