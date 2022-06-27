@@ -63,8 +63,7 @@ internal class PhotoService : IPhotoService
     private async Task<PhotosResult> GetPhotosFromDatabase(int? lensId, int pageNumber, int pageSize)
     {
         var lens = await _dbContext.Lenses.FindAsync(lensId);
-        var photosQuery = _dbContext
-            .Photos
+        var photosQuery = _dbContext.Photos
             .AsNoTracking()
             .Where(LensPredicate(lens));
 
@@ -75,9 +74,9 @@ internal class PhotoService : IPhotoService
         var skip = (pageNumber - 1) * pageSize;
 
         var photos = await photosQuery
+            .OrderBy(p => p.PhotoId)
             .Skip(skip)
             .Take(pageSize)
-            .OrderBy(p => p.PhotoId)
             .Include(e => e.Camera)
             .Include(e => e.Lens)
             .ToListAsync();
