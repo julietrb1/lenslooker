@@ -20,7 +20,7 @@ namespace LensLooker;
 public class Investigator : IInvestigator
 {
     private readonly LensLookerContext _dbContext;
-    private readonly CultureInfo _enUsCultureInfo = new("en-US");
+    private readonly CultureInfo _enAuCultureInfo = new("en-AU");
     private readonly IGroupsPoolsClient _groupsPoolsClient;
     private readonly ILensService _lensService;
     private readonly ILogger<Investigator> _logger;
@@ -339,9 +339,16 @@ public class Investigator : IInvestigator
                 var rawDate = fetchedPhoto.Photo.Exif.FirstOrDefault(e => e.Tag == "DateTimeOriginal")?.Raw.Content
                     .ToString();
 
-                DateTime.TryParseExact(rawDate, "yyyy:MM:dd HH:mm:ss", _enUsCultureInfo, DateTimeStyles.None,
-                    out var parsedDate);
-                photo.DateTimeShot = parsedDate;
+                if (rawDate != null)
+                {
+                    DateTime.TryParseExact(rawDate, "yyyy:MM:dd HH:mm:ss", _enAuCultureInfo, DateTimeStyles.None,
+                        out var parsedDate);
+                    photo.DateTimeShot = parsedDate;
+                }
+                else
+                {
+                    photo.DateTimeShot = null;
+                }
 
                 var focalLengthNode = fetchedPhoto.Photo.Exif.FirstOrDefault(e => e.Tag == "FocalLength");
                 var fetchedFocalLength =
