@@ -62,24 +62,27 @@ internal class PhotoService : IPhotoService
     private async Task<PhotosResult> GetPhotosFromDatabase(int? lensId, int pageNumber, int pageSize)
     {
         var lens = await _dbContext.Lenses.FindAsync(lensId);
-        var photos = await _dbContext
+        var photosQuery = _dbContext
             .Photos
-            .Where(LensPredicate(lens))
+            .AsNoTracking()
+            .Where(LensPredicate(lens));
+
+
+        var totalCount = await photosQuery.CountAsync();
+        var pageCount = (int)Math.Max(1, Math.Ceiling(totalCount / (double)pageSize));
+        pageNumber = pageNumber <= pageCount && pageNumber > 0 ? pageNumber : 1;
+        var skip = (pageNumber - 1) * pageSize;
+
+        var photos = await photosQuery
+            .Skip(skip)
+            .Take(pageSize)
             .OrderBy(p => p.PhotoId)
             .Include(e => e.Camera)
             .Include(e => e.Lens)
-            .AsNoTracking()
             .ToListAsync();
 
-        var totalCount = photos.Count;
-        var pageCount = (int)Math.Max(1, Math.Ceiling(totalCount / (double)pageSize));
-        pageNumber = pageNumber <= pageCount && pageNumber > 0 ? pageNumber : 1;
-
-        var skip = (pageNumber - 1) * pageSize;
         return new PhotosResult(totalCount, photos
-            .Select(p => p.ToViewModel(ModelExtensions.PhotoSize.Small320))
-            .Skip(skip)
-            .Take(pageSize));
+            .Select(p => p.ToViewModel(ModelExtensions.PhotoSize.Small320)));
     }
 
     private static Expression<Func<Photo, bool>> LensPredicate(Lens? lens)
