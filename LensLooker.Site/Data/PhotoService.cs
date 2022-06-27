@@ -47,6 +47,7 @@ internal class PhotoService : IPhotoService
     private IEnumerable<IGrouping<string, Lens>> GetLensesFromDatabase()
     {
         var lenses = _dbContext.Lenses
+            .AsNoTracking()
             .Where(l => l.LensFamilyId.HasValue)
             .Include(l => l.LensFamily)
             .ThenInclude(f => f!.CameraBrand)
