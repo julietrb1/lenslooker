@@ -1,3 +1,4 @@
+using System.Globalization;
 using LensLooker.Api.Flickr.Client.Common;
 using LensLooker.Api.Flickr.Client.GroupsPools;
 using LensLooker.Api.Flickr.Client.GroupsPools.Models;
@@ -19,6 +20,7 @@ namespace LensLooker;
 public class Investigator : IInvestigator
 {
     private readonly LensLookerContext _dbContext;
+    private readonly CultureInfo _enUsCultureInfo = new("en-US");
     private readonly IGroupsPoolsClient _groupsPoolsClient;
     private readonly ILensService _lensService;
     private readonly ILogger<Investigator> _logger;
@@ -336,8 +338,9 @@ public class Investigator : IInvestigator
 
                 var rawDate = fetchedPhoto.Photo.Exif.FirstOrDefault(e => e.Tag == "DateTimeOriginal")?.Raw.Content
                     .ToString();
-                DateTime? parsedDate =
-                    rawDate == null ? null : DateTime.ParseExact(rawDate, "yyyy:MM:dd HH:mm:ss", null);
+
+                DateTime.TryParseExact(rawDate, "yyyy:MM:dd HH:mm:ss", _enUsCultureInfo, DateTimeStyles.None,
+                    out var parsedDate);
                 photo.DateTimeShot = parsedDate;
 
                 var focalLengthNode = fetchedPhoto.Photo.Exif.FirstOrDefault(e => e.Tag == "FocalLength");
