@@ -26,18 +26,18 @@ public static class ModelExtensions
         Original
     }
 
-    public static PhotoViewModel ToViewModel(this Photo photo, PhotoSize size)
+    public static PhotoDto ToPhotoDto(this Photo photo, PhotoSize size)
     {
-        var suffix = ToPhotoSuffix(size);
+        var suffix = GetPhotoSuffix(size);
         var srcUrl = $"https://live.staticflickr.com/{photo.Server}/{photo.PhotoId}_{photo.Secret}{suffix}.jpg";
         var viewingUrl = $"https://www.flickr.com/photos/{photo.OwnerId}/{photo.PhotoId}/";
-        return new PhotoViewModel(
+        return new PhotoDto(
             srcUrl, viewingUrl, photo.OwnerId, photo.Title,
             photo.Camera?.Name, photo.Lens?.Name, photo.FocalLengthInMm, photo.FNumber,
             photo.ExposureTime);
     }
 
-    private static string ToPhotoSuffix(PhotoSize size)
+    private static string GetPhotoSuffix(PhotoSize size)
     {
         return size switch
         {

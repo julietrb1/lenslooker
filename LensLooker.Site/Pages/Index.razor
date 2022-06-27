@@ -114,7 +114,7 @@
         (TotalPhotoCount, FilteredPhotos) = await PhotoService.GetPhotos(Lens?.Id, PageNumber, PageSize);
     }
 
-    private IEnumerable<PhotoViewModel>? FilteredPhotos { get; set; }
+    private IEnumerable<PhotoDto>? FilteredPhotos { get; set; }
 
     private IEnumerable<IGrouping<string, Lens>>? LensGroups { get; set; }
 

@@ -1,6 +1,6 @@
 namespace LensLooker.Site.Data;
 
-public record PhotoViewModel(
+public record PhotoDto(
     string Src,
     string ViewingUrl,
     string OwnerId,

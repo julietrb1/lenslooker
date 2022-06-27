@@ -1,6 +1,6 @@
 namespace LensLooker.Site.Data;
 
-public record LensViewModel(
+public record LensDto(
     string Name,
     int PhotoCount
 );

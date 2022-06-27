@@ -82,7 +82,7 @@ internal class PhotoService : IPhotoService
             .ToListAsync();
 
         return new PhotosResult(totalCount, photos
-            .Select(p => p.ToViewModel(ModelExtensions.PhotoSize.Small320)));
+            .Select(p => p.ToPhotoDto(ModelExtensions.PhotoSize.Small320)));
     }
 
     private static Expression<Func<Photo, bool>> LensPredicate(Lens? lens)
