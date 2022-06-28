@@ -15,12 +15,15 @@ else
                 <div class="m-3 mt-2">
                     <div class="mb-3 h6">@(photo.Title ?? "(untitled photo)")</div>
                     <div>
-                        <span class="badge rounded-pill bg-light text-dark me-2">@(photo.Camera ?? "(camera N/A)")</span>
-                        <span class="badge rounded-pill bg-primary">@photo.Lens</span>
+                        <span class="badge rounded-pill bg-light text-dark">@(photo.Camera ?? "(camera N/A)")</span>
+                        @if (ShowLens)
+                        {
+                            <span class="badge rounded-pill bg-primary">@photo.Lens</span>
+                        }
                     </div>
                     <div>
-                        <span class="badge rounded-pill bg-secondary me-2">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)")</span>
-                        <span class="badge rounded-pill bg-secondary me-2">@(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)")</span>
+                        <span class="badge rounded-pill bg-secondary">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)")</span>
+                        <span class="badge rounded-pill bg-secondary">@(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)")</span>
                         <span class="badge rounded-pill bg-secondary">@(photo.ShutterSpeed ?? "(shutter speed N/A)")</span>
                     </div>
                 </div>
@@ -34,5 +37,8 @@ else
     [Parameter]
     [EditorRequired]
     public IEnumerable<PhotoDto>? Photos { get; set; }
+
+    [Parameter]
+    public bool ShowLens { get; set; } = true;
 
 }
