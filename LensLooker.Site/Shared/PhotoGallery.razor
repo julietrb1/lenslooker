@@ -13,7 +13,7 @@ else
                     <img src="@photo.Src" alt="@photo.Title" class="photo"/>
                 </a>
                 <div class="m-3 mt-2">
-                    <div class="mb-3 h6">@(photo.Title ?? "(untitled photo)")</div>
+                    <div class="mb-2 h6">@(photo.Title ?? "(untitled photo)")</div>
                     <div>
                         <span class="badge rounded-pill bg-light text-dark">@(photo.Camera ?? "(camera N/A)")</span>
                         @if (ShowLens)
