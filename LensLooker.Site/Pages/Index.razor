@@ -5,8 +5,8 @@
 <PageTitle>@(LensDisplayName)&mdash;Lens Looker</PageTitle>
 @inject IPhotoService PhotoService
 <div tabindex="0" @ref="_container" @onkeydown="OnKeyPress" id="container">
-    <h1>Lens Looker</h1>
-    <h2 class="text-muted h4 mb-4">@(LensDisplayName) &bull; Page @PageNumber.ToString("N0") of @PageCount.ToString("N0")</h2>
+    <h1 class="display-5">Lens Looker</h1>
+    <h2 class="text-muted h4 mb-4">Page @PageNumber.ToString("N0") of @PageCount.ToString("N0")</h2>
 
     <p class="small">Press <code>j</code>/<code>l</code> for previous/next page.</p>
 
