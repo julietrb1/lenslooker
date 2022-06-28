@@ -12,12 +12,17 @@ else
                 <a href="@photo.ViewingUrl" target="_blank">
                     <img src="@photo.Src" alt="@photo.Title" class="photo"/>
                 </a>
-                <div class="m-3">
+                <div class="m-3 mt-2">
+                    <div class="mb-3 h6">@(photo.Title ?? "(untitled photo)")</div>
                     <div>
-                        @(photo.Title ?? "(untitled photo)") | <small class="text-muted">@photo.OwnerId</small>
+                        <span class="badge rounded-pill bg-light text-dark me-2">@(photo.Camera ?? "(camera N/A)")</span>
+                        <span class="badge rounded-pill bg-primary">@photo.Lens</span>
                     </div>
-                    <div>@(photo.Camera ?? "(camera N/A)") | <strong class="text-success">@(photo.Lens ?? "(lens N/A)")</strong></div>
-                    <div style="color: grey">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)") | @(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)") | @(photo.ShutterSpeed ?? "(shutter speed N/A)")</div>
+                    <div>
+                        <span class="badge rounded-pill bg-secondary me-2">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)")</span>
+                        <span class="badge rounded-pill bg-secondary me-2">@(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)")</span>
+                        <span class="badge rounded-pill bg-secondary">@(photo.ShutterSpeed ?? "(shutter speed N/A)")</span>
+                    </div>
                 </div>
             </div>
         }
