@@ -47,25 +47,25 @@ internal class PhotoService : IPhotoService
             });
     }
 
-    private async Task<Photo?> GetFirstPhoto(IQueryable<Photo?> photosQuery, int? lensId)
+    private async Task<int?> GetFirstPhotoId(IQueryable<Photo?> photosQuery, int? lensId)
     {
         return await _memoryCache.GetOrCreateAsync(
             CacheKeys.BuildFirstPhotoCacheKey(lensId),
             async cacheEntry =>
             {
                 cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.PhotoCacheExpirationMinutes);
-                return await photosQuery.FirstOrDefaultAsync();
+                return (await photosQuery.FirstOrDefaultAsync())?.Id;
             });
     }
 
-    private async Task<Photo?> GetLastPhoto(IQueryable<Photo?> photosQuery, int? lensId)
+    private async Task<int?> GetLastPhotoId(IQueryable<Photo?> photosQuery, int? lensId)
     {
         return await _memoryCache.GetOrCreateAsync(
             CacheKeys.BuildLastPhotoCacheKey(lensId),
             async cacheEntry =>
             {
                 cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.PhotoCacheExpirationMinutes);
-                return await photosQuery.LastOrDefaultAsync();
+                return (await photosQuery.LastOrDefaultAsync())?.Id;
             });
     }
 
@@ -98,8 +98,8 @@ internal class PhotoService : IPhotoService
             .AsNoTracking()
             .Where(LensPredicate(lens));
 
-        var firstPhoto = await GetFirstPhoto(photosQuery, lensId);
-        var lastPhoto = await GetLastPhoto(photosQuery, lensId);
+        var firstPhotoId = await GetFirstPhotoId(photosQuery, lensId);
+        var lastPhotoId = await GetLastPhotoId(photosQuery, lensId);
 
         var paginatedQuery = beforeId == null && afterId == null
             ? photosQuery
@@ -111,8 +111,8 @@ internal class PhotoService : IPhotoService
             .Include(e => e.Lens)
             .ToListAsync();
 
-        var hasPreviousPage = firstPhoto != null && !photos.Contains(firstPhoto);
-        var hasNextPage = lastPhoto != null && !photos.Contains(lastPhoto);
+        var hasPreviousPage = firstPhotoId != null && !photos.Exists(p => p.Id == firstPhotoId);
+        var hasNextPage = lastPhotoId != null && !photos.Exists(p => p.Id == lastPhotoId);
 
         var photoDtos = photos
             .Select(p => p.ToPhotoDto(ModelExtensions.PhotoSize.Small320));
