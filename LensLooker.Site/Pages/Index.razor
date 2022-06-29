@@ -112,13 +112,13 @@
     private async Task LoadNextPage()
     {
         BeforeId = null;
-        AfterId = FilteredPhotos?.Last().Id;
+        AfterId = FilteredPhotos?.LastOrDefault()?.Id;
         await LoadPhotos();
     }
 
     private async Task LoadPreviousPage()
     {
-        BeforeId = FilteredPhotos?.First().Id;
+        BeforeId = FilteredPhotos?.FirstOrDefault()?.Id;
         AfterId = null;
         await LoadPhotos();
     }
