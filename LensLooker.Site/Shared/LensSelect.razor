@@ -1,7 +1,7 @@
 @using LensLooker.Data.Models
 <label>
     Lens
-    <select class="form-select form-select-sm" onchange="@OnLensChange">
+    <select class="form-select form-select-sm" @bind="Lens">
         <optgroup label="Everything">
             <option value="">All</option>
         </optgroup>
@@ -28,6 +28,21 @@
 
     [Parameter]
     [EditorRequired]
-    public Action<ChangeEventArgs>? OnLensChange { get; set; }
+    public EventCallback<int?> OnLensChange { get; set; }
 
+    [Parameter]
+    [EditorRequired]
+    public int Lens
+    {
+        get => _lensId;
+        set
+        {
+            if (_lensId == value) return;
+            _lensId = value;
+            if (OnLensChange.HasDelegate)
+                OnLensChange.InvokeAsync(value);
+        }
+    }
+
+    private int _lensId;
 }
