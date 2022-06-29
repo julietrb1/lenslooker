@@ -12,13 +12,16 @@ namespace LensLooker.Site.Data;
 internal class PhotoService : IPhotoService
 {
     private readonly LensLookerContext _dbContext;
+    private readonly ILogger<PhotoService> _logger;
     private readonly IMemoryCache _memoryCache;
     private readonly SiteOptions _options;
 
-    public PhotoService(LensLookerContext dbContext, IMemoryCache memoryCache, IOptions<SiteOptions> options)
+    public PhotoService(LensLookerContext dbContext, IMemoryCache memoryCache, IOptions<SiteOptions> options,
+        ILogger<PhotoService> logger)
     {
         _dbContext = dbContext;
         _memoryCache = memoryCache;
+        _logger = logger;
         _options = options.Value;
     }
 
@@ -98,12 +101,21 @@ internal class PhotoService : IPhotoService
         var firstPhoto = await GetFirstPhoto(photosQuery);
         var lastPhoto = await GetLastPhoto(photosQuery);
 
+        // TODO: Remove this once photo listing issue resolved
+        _logger.LogInformation("Photo query got {Count}, first {First}, last {Last}", await photosQuery.CountAsync(),
+            firstPhoto?.Id, lastPhoto?.Id);
+
         var photos = await photosQuery
             .Where(p => (beforeId == null && afterId == null) || beforeId != null ? p.Id < beforeId : p.Id > afterId)
             .Take(pageSize)
             .Include(e => e.Camera)
             .Include(e => e.Lens)
             .ToListAsync();
+
+        // TODO: Remove this once photo listing issue resolved
+        _logger.LogInformation(
+            "Got {Count} photos with before {Before}, after {After}, lens {Lens}, page size {PageSize}", photos.Count,
+            beforeId, afterId, lens?.Name, pageSize);
 
         var hasPreviousPage = firstPhoto != null && !photos.Contains(firstPhoto);
         var hasNextPage = lastPhoto != null && !photos.Contains(lastPhoto);
