@@ -105,8 +105,11 @@ internal class PhotoService : IPhotoService
         _logger.LogInformation("Photo query got {Count}, first {First}, last {Last}", await photosQuery.CountAsync(),
             firstPhoto?.Id, lastPhoto?.Id);
 
-        var photos = await photosQuery
-            .Where(p => (beforeId == null && afterId == null) || beforeId != null ? p.Id < beforeId : p.Id > afterId)
+        var paginatedQuery = beforeId == null && afterId == null
+            ? photosQuery
+            : photosQuery.Where(p => beforeId != null ? p.Id < beforeId : p.Id > afterId);
+
+        var photos = await paginatedQuery
             .Take(pageSize)
             .Include(e => e.Camera)
             .Include(e => e.Lens)
