@@ -12,16 +12,13 @@ namespace LensLooker.Site.Data;
 internal class PhotoService : IPhotoService
 {
     private readonly LensLookerContext _dbContext;
-    private readonly ILogger<PhotoService> _logger;
     private readonly IMemoryCache _memoryCache;
     private readonly SiteOptions _options;
 
-    public PhotoService(LensLookerContext dbContext, IMemoryCache memoryCache, IOptions<SiteOptions> options,
-        ILogger<PhotoService> logger)
+    public PhotoService(LensLookerContext dbContext, IMemoryCache memoryCache, IOptions<SiteOptions> options)
     {
         _dbContext = dbContext;
         _memoryCache = memoryCache;
-        _logger = logger;
         _options = options.Value;
     }
 
