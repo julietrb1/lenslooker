@@ -119,7 +119,7 @@ internal class PhotoService : IPhotoService
     private static IQueryable<Photo> GetPaginatedQuery(int pageSize, int? beforeId, int? afterId,
         IQueryable<Photo> photosQuery)
     {
-        if (beforeId == null && afterId == null) return photosQuery;
+        if (beforeId == null && afterId == null) return photosQuery.Take(pageSize);
         if (beforeId != null)
             return photosQuery
                 .OrderByDescending(p => p.Id)
