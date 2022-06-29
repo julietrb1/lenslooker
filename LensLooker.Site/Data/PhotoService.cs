@@ -98,8 +98,6 @@ internal class PhotoService : IPhotoService
         var firstPhoto = await GetFirstPhoto(photosQuery);
         var lastPhoto = await GetLastPhoto(photosQuery);
 
-        var totalCount = await photosQuery.CountAsync();
-
         var photos = await photosQuery
             .Where(p => (beforeId == null && afterId == null) || beforeId != null ? p.Id < beforeId : p.Id > afterId)
             .Take(pageSize)
