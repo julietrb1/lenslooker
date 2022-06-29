@@ -47,10 +47,10 @@ internal class PhotoService : IPhotoService
             });
     }
 
-    private async Task<Photo?> GetFirstPhoto(IQueryable<Photo?> photosQuery)
+    private async Task<Photo?> GetFirstPhoto(IQueryable<Photo?> photosQuery, int? lensId)
     {
         return await _memoryCache.GetOrCreateAsync(
-            CacheKeys.FirstPhotoCacheKey,
+            CacheKeys.BuildFirstPhotoCacheKey(lensId),
             async cacheEntry =>
             {
                 cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.PhotoCacheExpirationMinutes);
@@ -58,10 +58,10 @@ internal class PhotoService : IPhotoService
             });
     }
 
-    private async Task<Photo?> GetLastPhoto(IQueryable<Photo?> photosQuery)
+    private async Task<Photo?> GetLastPhoto(IQueryable<Photo?> photosQuery, int? lensId)
     {
         return await _memoryCache.GetOrCreateAsync(
-            CacheKeys.LastPhotoCacheKey,
+            CacheKeys.BuildLastPhotoCacheKey(lensId),
             async cacheEntry =>
             {
                 cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.PhotoCacheExpirationMinutes);
@@ -98,8 +98,8 @@ internal class PhotoService : IPhotoService
             .AsNoTracking()
             .Where(LensPredicate(lens));
 
-        var firstPhoto = await GetFirstPhoto(photosQuery);
-        var lastPhoto = await GetLastPhoto(photosQuery);
+        var firstPhoto = await GetFirstPhoto(photosQuery, lensId);
+        var lastPhoto = await GetLastPhoto(photosQuery, lensId);
 
         var paginatedQuery = beforeId == null && afterId == null
             ? photosQuery
