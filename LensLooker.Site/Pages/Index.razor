@@ -52,7 +52,7 @@
         Lens = parsedLensId > 0 ? LensGroups?.SelectMany(l => l).SingleOrDefault(l => l.Id == parsedLensId) : null;
         BeforeId = null;
         AfterId = null;
-        Task.Run(LoadPhotos).Wait();
+        Task.Run(() => LoadPhotos()).Wait();
     }
 
     ElementReference _container;
@@ -78,13 +78,15 @@
     protected override async Task OnInitializedAsync()
     {
         LensGroups = PhotoService.GetLenses();
-        await LoadPhotos();
+        await LoadPhotos(false);
     }
 
-    private async Task LoadPhotos()
+    private async Task LoadPhotos(bool focusPhotos = true)
     {
         FilteredPhotos = null;
         (FilteredPhotos, HasPreviousPage, HasNextPage) = await PhotoService.GetPhotos(Lens?.Id, PageSize, BeforeId, AfterId);
+        if (focusPhotos)
+            await _container.FocusAsync();
     }
 
     private bool HasPreviousPage { get; set; }
