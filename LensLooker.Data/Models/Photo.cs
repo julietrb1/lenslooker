@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LensLooker.Data.Models;
 
+// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 public class Photo
 {
     public string PhotoId { get; set; }
@@ -12,10 +13,6 @@ public class Photo
     public string Secret { get; set; }
     public bool IsExifFetched { get; set; }
     public bool IsSkipped { get; set; }
-
-    public bool CanConstructUrl => !string.IsNullOrWhiteSpace(Server) && !string.IsNullOrWhiteSpace(Secret) &&
-                                   !string.IsNullOrWhiteSpace(OwnerId);
-
     public double? FNumber { get; set; }
     public string? ExposureTime { get; set; }
     public int? Iso { get; set; }
