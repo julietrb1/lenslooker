@@ -32,7 +32,7 @@
 
     [Parameter]
     [EditorRequired]
-    public int LensId
+    public int? LensId
     {
         get => _lensId;
         set
@@ -44,5 +44,5 @@
         }
     }
 
-    private int _lensId;
+    private int? _lensId;
 }
