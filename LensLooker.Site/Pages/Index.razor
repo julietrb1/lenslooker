@@ -10,7 +10,7 @@
 
     <div class="row mb-4">
         <div class="col-md-3">
-            <LensSelect LensGroups="@LensGroups" OnLensChange="@OnLensChange" Lens="@Lens"/>
+            <LensSelect LensGroups="@LensGroups" OnLensChange="@OnLensChange" LensId="@LensId"/>
         </div>
         <div class="col-md-3">
             <PageSizeSelect PageSize="@PageSize" OnPageSizeChange="@OnPageSizeChange" ValidPageSizes="@ValidPageSizes"/>
@@ -48,6 +48,7 @@
 
     private async Task OnLensChange(int? lensId)
     {
+        LensId = lensId;
         Lens = lensId is > 0 ? LensGroups?.SelectMany(l => l).SingleOrDefault(l => l.Id == lensId) : null;
         BeforeId = null;
         AfterId = null;
@@ -130,4 +131,5 @@
         await LoadPhotos();
     }
 
+    private int? LensId { get; set; }
 }
