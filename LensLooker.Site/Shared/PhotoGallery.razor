@@ -6,28 +6,35 @@
 else
 {
     <div class="row">
-        @foreach (var photo in Photos)
+        @if (Photos.Any())
         {
-            <div class="col-sm-12 col-md-6 col-lg-4 col-xxl-3 p-2 text-center">
-                <a href="@photo.ViewingUrl" target="_blank">
-                    <img src="@photo.Src" alt="@photo.Title" class="photo"/>
-                </a>
-                <div class="m-3 mt-2">
-                    <div class="mb-2 h6">@(photo.Title ?? "(untitled photo)")</div>
-                    <div>
-                        <span class="badge rounded-pill bg-light text-dark">@(photo.Camera ?? "(camera N/A)")</span>
-                        @if (ShowLens)
-                        {
-                            <span class="badge rounded-pill bg-primary">@photo.Lens</span>
-                        }
-                    </div>
-                    <div>
-                        <span class="badge rounded-pill bg-secondary">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)")</span>
-                        <span class="badge rounded-pill bg-secondary">@(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)")</span>
-                        <span class="badge rounded-pill bg-secondary">@(photo.ShutterSpeed ?? "(shutter speed N/A)")</span>
+            @foreach (var photo in Photos)
+            {
+                <div class="col-sm-12 col-md-6 col-lg-4 col-xxl-3 p-2 text-center">
+                    <a href="@photo.ViewingUrl" target="_blank">
+                        <img src="@photo.Src" alt="@photo.Title" class="photo"/>
+                    </a>
+                    <div class="m-3 mt-2">
+                        <div class="mb-2 h6">@(photo.Title ?? "(untitled photo)")</div>
+                        <div>
+                            <span class="badge rounded-pill bg-light text-dark">@(photo.Camera ?? "(camera N/A)")</span>
+                            @if (ShowLens)
+                            {
+                                <span class="badge rounded-pill bg-primary">@photo.Lens</span>
+                            }
+                        </div>
+                        <div>
+                            <span class="badge rounded-pill bg-secondary">@(photo.FocalLength.HasValue ? $"{photo.FocalLength.ToString()} mm" : "(focal length N/A)")</span>
+                            <span class="badge rounded-pill bg-secondary">@(photo.Aperture.HasValue ? $"f/{photo.Aperture.ToString()}" : "(aperture N/A)")</span>
+                            <span class="badge rounded-pill bg-secondary">@(photo.ShutterSpeed ?? "(shutter speed N/A)")</span>
+                        </div>
                     </div>
                 </div>
-            </div>
+            }
+        }
+        else
+        {
+            <p class="display-1 text-muted text-center my-5">No photos here :(</p>
         }
     </div>
 }
