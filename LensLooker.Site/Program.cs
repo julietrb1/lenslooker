@@ -24,7 +24,13 @@ var app = builder.Build();
 using (var serviceScope = app.Services.CreateScope())
 {
     var context = serviceScope.ServiceProvider.GetRequiredService<LensLookerContext>();
-    if (context.Database.GetPendingMigrations().Any()) context.Database.Migrate();
+    if (context.Database.GetPendingMigrations().Any())
+    {
+        var previousExecutionTimeout = context.Database.GetCommandTimeout();
+        context.Database.SetCommandTimeout(180);
+        context.Database.Migrate();
+        context.Database.SetCommandTimeout(previousExecutionTimeout);
+    }
 }
 
 // Configure the HTTP request pipeline.
