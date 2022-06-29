@@ -31,8 +31,8 @@ public static class ModelExtensions
         var suffix = GetPhotoSuffix(size);
         var srcUrl = $"https://live.staticflickr.com/{photo.Server}/{photo.PhotoId}_{photo.Secret}{suffix}.jpg";
         var viewingUrl = $"https://www.flickr.com/photos/{photo.OwnerId}/{photo.PhotoId}/";
-        return new PhotoDto(
-            srcUrl, viewingUrl, photo.OwnerId, photo.Title,
+        return new PhotoDto(photo.Id,
+            srcUrl, viewingUrl, photo.Title,
             photo.Camera?.Name, photo.Lens?.Name, photo.FocalLengthInMm, photo.FNumber,
             photo.ExposureTime);
     }

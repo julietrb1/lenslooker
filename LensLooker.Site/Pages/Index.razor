@@ -6,8 +6,6 @@
 @inject IPhotoService PhotoService
 <div tabindex="0" @ref="_container" @onkeydown="OnKeyPress" id="container">
     <h1 class="display-5">Lens Looker</h1>
-    <h2 class="text-muted h4 mb-4">Page @PageNumber.ToString("N0") of @PageCount.ToString("N0")</h2>
-
     <p class="small">Press <code>j</code>/<code>l</code> for previous/next page.</p>
 
     <div class="row mb-4">
@@ -22,15 +20,6 @@
     <PhotoGallery Photos="@FilteredPhotos" ShowLens="@(Lens == null)"/>
 
     <div class="mb-4 d-flex justify-content-center">
-        <div>
-            <label>
-                Page number
-                <input @bind="PageNumberString"/>
-            </label>
-            <text class="me-3"> of @PageCount.ToString("N0")</text>
-            <button class="btn btn-outline-secondary btn-sm" onclick="@HandlePageChange">Go</button>
-        </div>
-
         <div class="btn-group mt-2" role="group" aria-label="Pagination buttons">
             @if (HasPreviousPage)
             {
@@ -61,31 +50,20 @@
     {
         int.TryParse(e.Value as string, out var parsedLensId);
         Lens = parsedLensId > 0 ? LensGroups?.SelectMany(l => l).SingleOrDefault(l => l.Id == parsedLensId) : null;
-        PageNumber = 1;
+        BeforeId = null;
+        AfterId = null;
         Task.Run(LoadPhotos).Wait();
-    }
-
-    private async Task HandlePageChange()
-    {
-        PageNumber = int.TryParse(PageNumberString, out var parsedPageNumber) ? parsedPageNumber : 1;
-        await LoadPhotos();
     }
 
     ElementReference _container;
 
     [Parameter]
     [SupplyParameterFromQuery]
-    public int PageNumber
-    {
-        get => _pageNumber;
-        set
-        {
-            _pageNumber = Math.Max(1, Math.Min(PageCount, value));
-            PageNumberString = _pageNumber.ToString();
-        }
-    }
+    public int? BeforeId { get; set; }
 
-    private string PageNumberString { get; set; } = string.Empty;
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public int? AfterId { get; set; }
 
     [Parameter]
     [SupplyParameterFromQuery]
@@ -95,11 +73,7 @@
         set => _pageSize = value != 0 ? value : ValidPageSizes.First();
     }
 
-    private int TotalPhotoCount { get; set; }
-
     private Lens? Lens { get; set; }
-
-    private int PageCount => TotalPhotoCount != 0 ? (int)Math.Max(1, Math.Ceiling(TotalPhotoCount / (double)PageSize)) : 1;
 
     protected override async Task OnInitializedAsync()
     {
@@ -109,20 +83,18 @@
 
     private async Task LoadPhotos()
     {
-        PageNumberString = PageNumber.ToString();
         FilteredPhotos = null;
-        (TotalPhotoCount, FilteredPhotos) = await PhotoService.GetPhotos(Lens?.Id, PageNumber, PageSize);
+        (FilteredPhotos, HasPreviousPage, HasNextPage) = await PhotoService.GetPhotos(Lens?.Id, PageSize, BeforeId, AfterId);
     }
+
+    private bool HasPreviousPage { get; set; }
+    private bool HasNextPage { get; set; }
 
     private IEnumerable<PhotoDto>? FilteredPhotos { get; set; }
 
     private IEnumerable<IGrouping<string, Lens>>? LensGroups { get; set; }
 
-    private int _pageNumber = 1;
     private int _pageSize = ValidPageSizes.First();
-
-    private bool HasPreviousPage => PageNumber > 1;
-    private bool HasNextPage => PageNumber < PageCount;
 
     private async Task OnKeyPress(KeyboardEventArgs args)
     {
@@ -139,13 +111,15 @@
 
     private async Task LoadNextPage()
     {
-        PageNumber += 1;
+        BeforeId = null;
+        AfterId = FilteredPhotos?.Last().Id;
         await LoadPhotos();
     }
 
     private async Task LoadPreviousPage()
     {
-        PageNumber -= 1;
+        BeforeId = FilteredPhotos?.First().Id;
+        AfterId = null;
         await LoadPhotos();
     }
 

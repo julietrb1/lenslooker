@@ -33,14 +33,36 @@ internal class PhotoService : IPhotoService
             });
     }
 
-    public async Task<PhotosResult> GetPhotos(int? lensId, int pageNumber, int pageSize)
+    public async Task<PhotosResult> GetPhotos(int? lensId, int pageSize, int? beforeId = null, int? afterId = null)
     {
         return await _memoryCache.GetOrCreateAsync(
-            CacheKeys.BuildPhotosCacheKey(lensId, pageNumber, pageSize),
+            CacheKeys.BuildPhotosCacheKey(lensId, pageSize, beforeId, afterId),
             async cacheEntry =>
             {
                 cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.PhotoCacheExpirationMinutes);
-                return await GetPhotosFromDatabase(lensId, pageNumber, pageSize);
+                return await GetPhotosFromDatabase(lensId, pageSize, beforeId, afterId);
+            });
+    }
+
+    private async Task<Photo?> GetFirstPhoto(IQueryable<Photo?> photosQuery)
+    {
+        return await _memoryCache.GetOrCreateAsync(
+            CacheKeys.FirstPhotoCacheKey,
+            async cacheEntry =>
+            {
+                cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.PhotoCacheExpirationMinutes);
+                return await photosQuery.FirstOrDefaultAsync();
+            });
+    }
+
+    private async Task<Photo?> GetLastPhoto(IQueryable<Photo?> photosQuery)
+    {
+        return await _memoryCache.GetOrCreateAsync(
+            CacheKeys.LastPhotoCacheKey,
+            async cacheEntry =>
+            {
+                cacheEntry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_options.PhotoCacheExpirationMinutes);
+                return await photosQuery.LastOrDefaultAsync();
             });
     }
 
@@ -60,29 +82,37 @@ internal class PhotoService : IPhotoService
             .OrderBy(g => g.Key);
     }
 
-    private async Task<PhotosResult> GetPhotosFromDatabase(int? lensId, int pageNumber, int pageSize)
+    private async Task<PhotosResult> GetPhotosFromDatabase(int? lensId, int pageSize, int? beforeId = null,
+        int? afterId = null)
     {
+        if (beforeId != null && afterId != null)
+            throw new ArgumentException(
+                $"{nameof(beforeId)} and {nameof(afterId)} provided, but only zero or one arguments allowed.");
+
         var lens = await _dbContext.Lenses.FindAsync(lensId);
         var photosQuery = _dbContext.Photos
+            .OrderBy(p => p.Id)
             .AsNoTracking()
             .Where(LensPredicate(lens));
 
+        var firstPhoto = await GetFirstPhoto(photosQuery);
+        var lastPhoto = await GetLastPhoto(photosQuery);
 
         var totalCount = await photosQuery.CountAsync();
-        var pageCount = (int)Math.Max(1, Math.Ceiling(totalCount / (double)pageSize));
-        pageNumber = pageNumber <= pageCount && pageNumber > 0 ? pageNumber : 1;
-        var skip = (pageNumber - 1) * pageSize;
 
         var photos = await photosQuery
-            .OrderBy(p => p.PhotoId)
-            .Skip(skip)
+            .Where(p => (beforeId == null && afterId == null) || beforeId != null ? p.Id < beforeId : p.Id > afterId)
             .Take(pageSize)
             .Include(e => e.Camera)
             .Include(e => e.Lens)
             .ToListAsync();
 
-        return new PhotosResult(totalCount, photos
-            .Select(p => p.ToPhotoDto(ModelExtensions.PhotoSize.Small320)));
+        var hasPreviousPage = firstPhoto != null && !photos.Contains(firstPhoto);
+        var hasNextPage = lastPhoto != null && !photos.Contains(lastPhoto);
+
+        var photoDtos = photos
+            .Select(p => p.ToPhotoDto(ModelExtensions.PhotoSize.Small320));
+        return new PhotosResult(photoDtos, hasPreviousPage, hasNextPage);
     }
 
     private static Expression<Func<Photo, bool>> LensPredicate(Lens? lens)

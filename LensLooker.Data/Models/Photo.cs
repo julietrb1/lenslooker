@@ -5,6 +5,7 @@ namespace LensLooker.Data.Models;
 // ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
 public class Photo
 {
+    public int Id { get; set; }
     public string PhotoId { get; set; }
     public string OwnerId { get; set; }
     public string Title { get; set; }

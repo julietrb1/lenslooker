@@ -1,4 +1,3 @@
 namespace LensLooker.Site.Data;
 
-public record PhotosResult(
-    int TotalPhotos, IEnumerable<PhotoDto> FilteredPhotos);
+public record PhotosResult(IEnumerable<PhotoDto> FilteredPhotos, bool HasPreviousPage, bool HasNextPage);

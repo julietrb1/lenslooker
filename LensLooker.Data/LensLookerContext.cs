@@ -76,7 +76,10 @@ public class LensLookerContext : DbContext
     private static void ConfigurePhoto(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Photo>()
-            .HasIndex(p => new { p.PhotoId, p.LensId, p.IsExifFetched })
-            .IncludeProperties(p => p.CameraId);
+            .HasIndex(p => new { p.CameraId, p.LensId, p.IsExifFetched });
+
+        modelBuilder.Entity<Photo>()
+            .HasIndex(p => p.PhotoId)
+            .IsUnique();
     }
 }

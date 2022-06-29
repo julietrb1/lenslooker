@@ -1,9 +1,9 @@
 namespace LensLooker.Site.Data;
 
 public record PhotoDto(
+    int Id,
     string Src,
     string ViewingUrl,
-    string OwnerId,
     string? Title = default,
     string? Camera = default,
     string? Lens = default,
