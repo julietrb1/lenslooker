@@ -101,9 +101,7 @@ internal class PhotoService : IPhotoService
         var firstPhotoId = await GetFirstPhotoId(photosQuery, lensId);
         var lastPhotoId = await GetLastPhotoId(photosQuery, lensId);
 
-        var paginatedQuery = beforeId == null && afterId == null
-            ? photosQuery
-            : photosQuery.Where(p => beforeId != null ? p.Id < beforeId : p.Id > afterId);
+        var paginatedQuery = GetPaginatedQuery(pageSize, beforeId, afterId, photosQuery);
 
         var photos = await paginatedQuery
             .Take(pageSize)
@@ -117,6 +115,20 @@ internal class PhotoService : IPhotoService
         var photoDtos = photos
             .Select(p => p.ToPhotoDto(ModelExtensions.PhotoSize.Small320));
         return new PhotosResult(photoDtos, hasPreviousPage, hasNextPage);
+    }
+
+    private static IQueryable<Photo> GetPaginatedQuery(int pageSize, int? beforeId, int? afterId,
+        IQueryable<Photo> photosQuery)
+    {
+        if (beforeId == null && afterId == null) return photosQuery;
+        var paginatedQuery = photosQuery.Where(p => beforeId != null ? p.Id < beforeId : p.Id > afterId);
+
+        /*
+         * If looking for photos before a given point, ensure that the upper bound of that range is filtered, and the
+         * lower bound if taking photos after a given point.
+         */
+        paginatedQuery = beforeId != null ? paginatedQuery.TakeLast(pageSize) : paginatedQuery.Take(pageSize);
+        return paginatedQuery;
     }
 
     private static Expression<Func<Photo, bool>> LensPredicate(Lens? lens)

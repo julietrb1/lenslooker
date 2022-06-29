@@ -7,8 +7,8 @@ public static class CacheKeys
     private const string FirstPhotoCacheKey = "photos_first";
     private const string LastPhotoCacheKey = "photos_last";
 
-    public static string BuildPhotosCacheKey(int? lensId, int pageSize, int? beforeId = null,
-        int? afterId = null)
+    public static string BuildPhotosCacheKey(int? lensId, int pageSize, int? beforeId,
+        int? afterId)
     {
         return $"{PhotosKey}::{lensId}::{pageSize}::{beforeId}::{afterId}";
     }
