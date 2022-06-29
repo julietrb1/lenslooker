@@ -101,10 +101,6 @@ internal class PhotoService : IPhotoService
         var firstPhoto = await GetFirstPhoto(photosQuery);
         var lastPhoto = await GetLastPhoto(photosQuery);
 
-        // TODO: Remove this once photo listing issue resolved
-        _logger.LogInformation("Photo query got {Count}, first {First}, last {Last}", await photosQuery.CountAsync(),
-            firstPhoto?.Id, lastPhoto?.Id);
-
         var paginatedQuery = beforeId == null && afterId == null
             ? photosQuery
             : photosQuery.Where(p => beforeId != null ? p.Id < beforeId : p.Id > afterId);
@@ -114,11 +110,6 @@ internal class PhotoService : IPhotoService
             .Include(e => e.Camera)
             .Include(e => e.Lens)
             .ToListAsync();
-
-        // TODO: Remove this once photo listing issue resolved
-        _logger.LogInformation(
-            "Got {Count} photos with before {Before}, after {After}, lens {Lens}, page size {PageSize}", photos.Count,
-            beforeId, afterId, lens?.Name, pageSize);
 
         var hasPreviousPage = firstPhoto != null && !photos.Contains(firstPhoto);
         var hasNextPage = lastPhoto != null && !photos.Contains(lastPhoto);
