@@ -73,10 +73,10 @@ public class FlickrClient : IFlickrClient
                 {
                     return (await _httpClient.SendAsync(requestMessage)).EnsureSuccessStatusCode();
                 }
-                catch (RateLimitRejectedException)
+                catch (RateLimitRejectedException e)
                 {
                     const int sleepSeconds = 10;
-                    _logger.LogWarning("Sleeping for {SleepSeconds} seconds as Flickr request rate limited", sleepSeconds);
+                    _logger.LogWarning(e, "Sleeping for {SleepSeconds} seconds as Flickr request rate limited", sleepSeconds);
                     Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
                 }
                 finally
