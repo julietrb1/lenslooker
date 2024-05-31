@@ -40,7 +40,7 @@ public class LensService : ILensService
         return null;
     }
 
-    private static Dictionary<Regex, string>? GetRegexes(string cameraBrandName)
+    private static IDictionary<Regex, string>? GetRegexes(string cameraBrandName)
     {
         switch (cameraBrandName)
         {
