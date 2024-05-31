@@ -120,11 +120,11 @@ public class Investigator : IInvestigator
 
     private async Task FetchPhotosWithTags()
     {
-        _logger.LogInformation("Fetching tags (currently {} photos)",
+        _logger.LogInformation("Fetching tags (currently {PhotoCount} photos)",
             await GetCurrentCountString());
         await RefreshPhotosFromFlickr(photosPage => _photosClient.Search(new SearchRequest
             { Page = photosPage, PerPage = _options.PageSize, Tags = _options.TagsToFetch }));
-        _logger.LogInformation("Tags fetched (currently {} photos)",
+        _logger.LogInformation("Tags fetched (currently {PhotoCount} photos)",
             await GetCurrentCountString());
         await _dbContext.SaveChangesAsync();
     }
@@ -145,7 +145,7 @@ public class Investigator : IInvestigator
                 await _dbContext.Photos.CountAsync());
         }
 
-        _logger.LogInformation("Groups fetched (currently {} photos)",
+        _logger.LogInformation("Groups fetched (currently {PhotoCount} photos)",
             await GetCurrentCountString());
         await _dbContext.SaveChangesAsync();
     }
@@ -157,19 +157,19 @@ public class Investigator : IInvestigator
 
     private async Task FetchOwners()
     {
-        _logger.LogInformation("DB has {} photos before fetching owners",
+        _logger.LogInformation("DB has {PhotoCount} photos before fetching owners",
             await GetCurrentCountString());
         var ownerIds = await _dbContext.Photos.Select(p => p.OwnerId).GroupBy(o => o).Select(g => g.Key)
             .ToListAsync();
         foreach (var ownerId in ownerIds) await FetchOwner(ownerId);
 
-        _logger.LogInformation("Database has {} photos after fetching owners",
+        _logger.LogInformation("Database has {PhotoCount} photos after fetching owners",
             await GetCurrentCountString());
     }
 
     private async Task FetchOwner(string ownerId)
     {
-        _logger.LogInformation("Fetching photos for owner {}", ownerId);
+        _logger.LogInformation("Fetching photos for owner {Owner}", ownerId);
         await RefreshPhotosFromFlickr(photosPage => _peopleClient.GetPublicPhotos(
             new GetPublicPhotosRequest(ownerId)
                 { Page = photosPage, PerPage = _options.PageSize }), true);
@@ -185,11 +185,11 @@ public class Investigator : IInvestigator
             var lens = await _dbContext.Lenses.FindAsync(lensName);
             if (lens == null)
             {
-                _logger.LogWarning("No preferred lens '{}' found", lensName);
+                _logger.LogWarning("No preferred lens '{LensName}' found", lensName);
                 continue;
             }
 
-            _logger.LogInformation("Fetching photos for owners of lens '{}'", lensName);
+            _logger.LogInformation("Fetching photos for owners of lens '{LensName}'", lensName);
 
             foreach (var ownerGroup in lens.Photos.GroupBy(p => p.OwnerId))
             {
