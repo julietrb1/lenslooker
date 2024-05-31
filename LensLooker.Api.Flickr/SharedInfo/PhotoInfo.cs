@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Text.RegularExpressions;
 
 namespace LensLooker.Api.Flickr.SharedInfo;
@@ -11,47 +12,27 @@ public static class PhotoInfo
     private const string SonyLensPost = @"($|\s[A-FH-Y])";
     private const string SonyZaLensPost = @"\sZA";
 
-    // Canon
-    public static readonly Regex CanonEfLensRegex = new($"^EF{CanonLensSpec}{CanonLensPost}");
-    public static readonly Regex CanonEfLLensRegex = new($"^EF{CanonLensSpec}L{CanonLensPost}");
-    public static readonly Regex CanonEfMLensRegex = new($"^EF-M{CanonLensSpec}{CanonLensPost}");
-    public static readonly Regex CanonEfSLensRegex = new($"^EF-S{CanonLensSpec}{CanonLensPost}");
-    public static readonly Regex CanonRfLensRegex = new($"^RF{CanonLensSpec}{CanonLensPost}");
-    public static readonly Regex CanonRfLLensRegex = new($"^RF{CanonLensSpec}L{CanonLensPost}");
-
-    // Sony
-    public static readonly Regex SonyDtLensRegex = new($"^DT{SonyLensSpec}{SonyLensPost}");
-    public static readonly Regex SonyDtGLensRegex = new($"^DT{SonyLensSpec}{SonyGLensPost}");
-    public static readonly Regex SonyDtZaLensRegex = new($"^DT{SonyLensSpec}{SonyZaLensPost}");
-    public static readonly Regex SonyELensRegex = new($"^E{SonyLensSpec}{SonyLensPost}");
-    public static readonly Regex SonyFeLensRegex = new($"^FE{SonyLensSpec}{SonyLensPost}");
-    public static readonly Regex SonyFeGLensRegex = new($"^FE{SonyLensSpec}{SonyGLensPost}");
-    public static readonly Regex SonyFeZaLensRegex = new($"^FE{SonyLensSpec}{SonyZaLensPost}");
-    public static readonly Regex SonySalLensRegex = new($"^{SonyLensSpec}{SonyLensPost}");
-    public static readonly Regex SonySalGLensRegex = new($"^{SonyLensSpec}{SonyGLensPost}");
-    public static readonly Regex SonySalZaLensRegex = new($"^{SonyLensSpec}{SonyZaLensPost}");
-
-    public static readonly Dictionary<Regex, string> CanonLensFamilyRegexes = new()
+    public static readonly FrozenDictionary<Regex, string> CanonLensFamilyRegexes = new Dictionary<Regex, string>
     {
-        [CanonEfLensRegex] = "EF",
-        [CanonEfLLensRegex] = "EF L",
-        [CanonEfMLensRegex] = "EF-M",
-        [CanonEfSLensRegex] = "EF-S",
-        [CanonRfLensRegex] = "RF",
-        [CanonRfLLensRegex] = "RF L"
-    };
+        [new Regex($"^EF{CanonLensSpec}{CanonLensPost}")] = "EF",
+        [new($"^EF{CanonLensSpec}L{CanonLensPost}")] = "EF L",
+        [new($"^EF-M{CanonLensSpec}{CanonLensPost}")] = "EF-M",
+        [new($"^EF-S{CanonLensSpec}{CanonLensPost}")] = "EF-S",
+        [new($"^RF{CanonLensSpec}{CanonLensPost}")] = "RF",
+        [new($"^RF{CanonLensSpec}L{CanonLensPost}")] = "RF L"
+    }.ToFrozenDictionary();
 
-    public static readonly Dictionary<Regex, string> SonyLensFamilyRegexes = new()
+    public static readonly FrozenDictionary<Regex, string> SonyLensFamilyRegexes = new Dictionary<Regex, string>
     {
-        [SonyDtLensRegex] = "DT",
-        [SonyDtGLensRegex] = "DT G",
-        [SonyDtZaLensRegex] = "DT ZA",
-        [SonyELensRegex] = "E",
-        [SonyFeLensRegex] = "FE",
-        [SonyFeGLensRegex] = "FE G",
-        [SonyFeZaLensRegex] = "FE ZA",
-        [SonySalLensRegex] = "SAL",
-        [SonySalGLensRegex] = "SAL G",
-        [SonySalZaLensRegex] = "SAL ZA"
-    };
+        [new Regex($"^DT{SonyLensSpec}{SonyLensPost}")] = "DT",
+        [new Regex($"^DT{SonyLensSpec}{SonyGLensPost}")] = "DT G",
+        [new Regex($"^DT{SonyLensSpec}{SonyZaLensPost}")] = "DT ZA",
+        [new Regex($"^E{SonyLensSpec}{SonyLensPost}")] = "E",
+        [new Regex($"^FE{SonyLensSpec}{SonyLensPost}")] = "FE",
+        [new Regex($"^FE{SonyLensSpec}{SonyGLensPost}")] = "FE G",
+        [new Regex($"^FE{SonyLensSpec}{SonyZaLensPost}")] = "FE ZA",
+        [new Regex($"^{SonyLensSpec}{SonyLensPost}")] = "SAL",
+        [new Regex($"^{SonyLensSpec}{SonyGLensPost}")] = "SAL G",
+        [new Regex($"^{SonyLensSpec}{SonyZaLensPost}")] = "SAL ZA"
+    }.ToFrozenDictionary();
 }
