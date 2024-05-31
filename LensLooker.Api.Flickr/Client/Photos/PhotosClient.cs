@@ -1,4 +1,5 @@
 using LensLooker.Api.Flickr.Client.Common;
+using LensLooker.Api.Flickr.Client.Models;
 using LensLooker.Api.Flickr.Client.People.Models;
 using LensLooker.Api.Flickr.Client.Photos.Models;
 using LensLooker.Api.Flickr.Config;
@@ -34,7 +35,7 @@ public class PhotosClient : FlickrClient, IPhotosClient
         }
     }
 
-    public async Task<GenericPhotosResponse> GetRecent(GetRecentRequest request)
+    public async Task<GenericPhotosResponse> GetRecent(PaginatedRequest request)
     {
         try
         {
@@ -51,7 +52,7 @@ public class PhotosClient : FlickrClient, IPhotosClient
         }
     }
 
-    public async Task<GenericPhotosResponse> GetPopular(GetPopularRequest request)
+    public async Task<GenericPhotosResponse> GetPopular(PaginatedRequest request)
     {
         try
         {
