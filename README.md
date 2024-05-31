@@ -1,9 +1,10 @@
-# lenslooker
+# LensLooker
 
-> ## No longer under active development.
->
->  📚 This repository has been archived, as it served its purpose and is no longer under active development. Good to see you, though!
+Find your lens on Flickr.
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=julietrb1_lenslooker&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=julietrb1_lenslooker)
+[![Dotnet Build Status](https://github.com/julietrb1/pollutameter/actions/workflows/dotnet.yml/badge.svg)](https://github.com/julietrb1/lenslooker/actions/workflows/dotnet.yml/badge.svg)
+
+## What Do?
 
 This is a .NET Core web application for searching Flickr for camera and lens data, as those functions aren't offered by the official Flickr site (at the time of writing this).
-
-Documentation is incomplete here as I'm only writing this as I archive the repository. Sad, I know. Oh well—here for your perusal anyways! Have a swell day ⭐️
