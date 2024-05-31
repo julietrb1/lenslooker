@@ -49,7 +49,7 @@ public class FlickrClient : IFlickrClient
         }
         catch (JsonException e)
         {
-            _logger.LogError("Failed to parse JSON: {}\nMessage: {}", e, await response.Content.ReadAsStringAsync());
+            _logger.LogError("Failed to parse JSON: {ExceptionDetail}\nMessage: {ExceptionMessage}", e, await response.Content.ReadAsStringAsync());
             throw;
         }
     }
@@ -64,7 +64,7 @@ public class FlickrClient : IFlickrClient
                 : (_lastRequestAt + TimeSpan.FromSeconds(_secondsBetweenRequests) - DateTime.Now).Value;
             if (nextRequestIn > TimeSpan.Zero)
             {
-                _logger.LogDebug("Waiting {} before sending request", nextRequestIn);
+                _logger.LogDebug("Waiting {NextRequestIn} before sending request", nextRequestIn);
                 Thread.Sleep(nextRequestIn);
             }
 
@@ -76,7 +76,7 @@ public class FlickrClient : IFlickrClient
                 catch (RateLimitRejectedException)
                 {
                     const int sleepSeconds = 10;
-                    _logger.LogWarning("Sleeping for {} seconds as Flickr request rate limited", sleepSeconds);
+                    _logger.LogWarning("Sleeping for {SleepSeconds} seconds as Flickr request rate limited", sleepSeconds);
                     Thread.Sleep(TimeSpan.FromSeconds(sleepSeconds));
                 }
                 finally
