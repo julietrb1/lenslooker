@@ -21,7 +21,7 @@ public class FlickrClient : IFlickrClient
     protected FlickrClient(IOptions<FlickrOptions> options, HttpClient httpClient, ILogger<FlickrClient> logger)
     {
         _httpClient = httpClient;
-        _httpClient.BaseAddress = new Uri("https://www.flickr.com/services/rest/");
+        _httpClient.BaseAddress = new Uri(options.Value.BaseUrl);
         ApiKey = options.Value.ApiKey;
         _secondsBetweenRequests = options.Value.MaxRequestsPerHour / 3600;
         _logger = logger;

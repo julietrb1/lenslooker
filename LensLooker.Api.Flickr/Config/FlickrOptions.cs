@@ -13,4 +13,5 @@ public class FlickrOptions
     public int? OwnerDeleteThreshold { get; set; }
     public int ExifSaveBatchSize { get; set; }
     public IEnumerable<string>? GroupsToFetch { get; set; }
+    public string BaseUrl { get; set; }
 }
